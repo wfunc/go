@@ -7,6 +7,7 @@ require (
 	github.com/codingeasygo/crud v0.0.0-20220813094114-c189b7e5087b
 	github.com/codingeasygo/util v0.0.0-20220813093844-0d8699e64985
 	github.com/codingeasygo/web v0.0.0-20220813094051-d1dc5db5f8ea
+	github.com/dchest/captcha v1.0.0
 	github.com/gomodule/redigo v1.8.5
 	go.uber.org/zap v1.19.1
 	golang.org/x/net v0.0.0-20211029224645-99673261e6eb

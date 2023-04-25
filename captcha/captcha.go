@@ -4,7 +4,7 @@ import (
 	"github.com/codingeasygo/util/xmap"
 	"github.com/codingeasygo/web"
 	"github.com/dchest/captcha"
-	"github.com/gexservice/gexservice/base/define"
+	"github.com/wfunc/go/define"
 )
 
 func CaptchaVerify(id, code string) (err error) {
