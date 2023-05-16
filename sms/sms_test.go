@@ -18,6 +18,8 @@ func TestVerifyPhone(t *testing.T) {
 		}()
 		_ = SendSms(nil, "", nil)
 	}()
+	SendVerifySmsH.Type = VerifyPhoneTypeUser
+	SendLoginSmsH.Type = VerifyPhoneTypePhone
 	//
 	redisURI := "redis.loc:6379?db=1"
 	rediscache.InitRedisPool(redisURI)

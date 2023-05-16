@@ -120,12 +120,10 @@ func (d *DbSessionBuilder) FindSessionByKey(key string) (session *DbSession, err
 	var data []byte
 	data, err = redis.Bytes(conn.Do("GET", d.Key+"_"+key))
 	if err == nil && len(data) > 0 {
-		session = NewDbSession(nil)
 		buf := bytes.NewBuffer(data)
 		decoder := gob.NewDecoder(buf)
 		err = decoder.Decode(session)
 		if err == nil {
-			session.Builder = d
 			d.sessionLck.Lock()
 			d.sessiones[session.SID] = session
 			d.sessionLck.Unlock()
@@ -174,12 +172,7 @@ func (s *DbSession) ID() string {
 func (s *DbSession) Flush() (err error) {
 	buf := bytes.NewBuffer(nil)
 	encoder := gob.NewEncoder(buf)
-	err = encoder.Encode(&DbSession{
-		M:    s.M,
-		SID:  s.SID,
-		Last: s.Last,
-		Time: s.Time,
-	})
+	err = encoder.Encode(s)
 	if err != nil {
 		xlog.Errorf("DbSession flush session to redist fail with %v", err)
 		return

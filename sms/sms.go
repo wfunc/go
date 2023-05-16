@@ -24,9 +24,10 @@ const (
 	//PhoneCodeTypeVerify is phone code type to verify
 	PhoneCodeTypeVerify = "verify"
 	//PhoneCodeTypeLogin is phone code type to login
-	PhoneCodeTypeLogin   = "login"
-	VerifyPhoneTypeUser  = "user"
-	VerifyPhoneTypePhone = "phone"
+	PhoneCodeTypeLogin     = "login"
+	VerifyPhoneTypeUser    = "user"
+	VerifyPhoneTypePhone   = "phone"
+	VerifyPhoneTypeCaptcha = "captcha"
 )
 
 // Redis will return redis connection
@@ -37,6 +38,10 @@ var Redis = func() redis.Conn {
 // SendSms will send message to phone
 var SendSms = func(v *VerifyPhone, phoneNumber string, templateParam xmap.M) (err error) {
 	panic("send sms is not initial")
+}
+
+var CaptchaVerify = func(v *VerifyPhone, id, code string) (err error) {
+	panic("verify captcha is not initial")
 }
 
 // LoadPhoneCode will return send code
@@ -57,6 +62,7 @@ func LoadPhoneCode(key, phone string) (having string, err error) {
 type VerifyPhone struct {
 	Key           string
 	Type          string
+	UserKey       string
 	Limit         int64
 	CalledUser    map[string]int64
 	CalledUserLck sync.RWMutex
@@ -76,35 +82,47 @@ func NewVerifyPhone(key, verifyType string, limit int64) (v *VerifyPhone) {
 
 // SrvHTTP is http handler
 func (v *VerifyPhone) SrvHTTP(hs *web.Session) web.Result {
-	var phone string
+	var phone, captchaID, captchaCode string
 	err := hs.ValidFormat(`
 		phone,R|S,L:0;
-	`, &phone)
+		captcha_id,O|S,L:0;
+		captcha_code,O|S,L:0;
+	`, &phone, &captchaID, &captchaCode)
 	if err != nil {
 		return util.ReturnCodeLocalErr(hs, define.ArgsInvalid, "arg-err", err)
 	}
-	unique := ""
-	if v.Type == "user" {
-		unique = hs.Str("uid")
-	} else if v.Type == "phone" {
-		unique = phone
+	if v.Type == "captcha" {
+		err = CaptchaVerify(v, captchaID, captchaCode)
+		if err != nil {
+			return hs.SendJSON(map[string]interface{}{
+				"code":    define.CodeInvalid,
+				"message": err.Error(),
+			})
+		}
 	} else {
-		unique = strings.Split(hs.R.RemoteAddr, ":")[0]
-	}
-	v.CalledUserLck.Lock()
-	now := xsql.TimeNow().Timestamp()
-	last := v.CalledUser[unique]
-	if now-last < v.Limit {
+		unique := ""
+		if v.Type == "user" {
+			unique = hs.Str(v.UserKey)
+		} else if v.Type == "phone" {
+			unique = phone
+		} else {
+			unique = strings.Split(hs.R.RemoteAddr, ":")[0]
+		}
+		v.CalledUserLck.Lock()
+		now := xsql.TimeNow().Timestamp()
+		last := v.CalledUser[unique]
+		if now-last < v.Limit {
+			v.CalledUserLck.Unlock()
+			// return util.ReturnCodeLocalErr(hs, define.Frequently, "srv-err", err)
+			return hs.SendJSON(map[string]interface{}{
+				"code":    define.Frequently,
+				"after":   v.Limit - (now - last),
+				"message": "call too frequently",
+			})
+		}
+		v.CalledUser[unique] = now
 		v.CalledUserLck.Unlock()
-		// return util.ReturnCodeLocalErr(hs, define.Frequently, "srv-err", err)
-		return hs.SendJSON(map[string]interface{}{
-			"code":    define.Frequently,
-			"after":   v.Limit - (now - last),
-			"message": "call too frequently",
-		})
 	}
-	v.CalledUser[unique] = now
-	v.CalledUserLck.Unlock()
 	number := rand.Intn(1000000)
 	err = SendSms(v, phone, xmap.M{
 		"code": number,
@@ -132,6 +150,8 @@ func (v *VerifyPhone) SrvHTTP(hs *web.Session) web.Result {
  *
  *
  * @apiParam  {String} phone the phone number
+ * @apiParam  {String} [captcha_id] the captcha id
+ * @apiParam  {String} [captcha_code] the captcha code
  * @apiSuccess (200) {Number} code the respnose code, see the common define,
  * @apiSuccess (200) {Number} after the after time when call frequently
  *
@@ -151,7 +171,7 @@ func (v *VerifyPhone) SrvHTTP(hs *web.Session) web.Result {
  * }
  *
  */
-var SendVerifySmsH = NewVerifyPhone(PhoneCodeTypeVerify, VerifyPhoneTypeUser, 10000)
+var SendVerifySmsH = NewVerifyPhone(PhoneCodeTypeVerify, VerifyPhoneTypeCaptcha, 10000)
 
 //SendLoginSmsH is http handler
 /**
@@ -162,6 +182,8 @@ var SendVerifySmsH = NewVerifyPhone(PhoneCodeTypeVerify, VerifyPhoneTypeUser, 10
  *
  *
  * @apiParam  {String} phone the phone number
+ * @apiParam  {String} [captcha_id] the captcha id
+ * @apiParam  {String} [captcha_code] the captcha code
  * @apiSuccess (200) {Number} code the respnose code, see the common define,
  * @apiSuccess (200) {Number} after the after time when call frequently
  *
@@ -182,7 +204,7 @@ var SendVerifySmsH = NewVerifyPhone(PhoneCodeTypeVerify, VerifyPhoneTypeUser, 10
  * }
  *
  */
-var SendLoginSmsH = NewVerifyPhone(PhoneCodeTypeLogin, VerifyPhoneTypePhone, 10000)
+var SendLoginSmsH = NewVerifyPhone(PhoneCodeTypeLogin, VerifyPhoneTypeCaptcha, 10000)
 
 func LoadPhoneCodeH(s *web.Session) web.Result {
 	var key, phone string
