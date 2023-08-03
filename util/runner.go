@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/codingeasygo/crud/pgx"
-	"github.com/codingeasygo/util/debug"
+	"github.com/codingeasygo/util/xdebug"
 	"github.com/wfunc/go/xlog"
 )
 
@@ -15,7 +15,7 @@ func NamedRunner(name string, delay time.Duration, running *bool, call func() er
 	runCall := func() error {
 		defer func() {
 			if perr := recover(); perr != nil {
-				xlog.Errorf("%v is panic with %v, callstaick is \n%v", perr, debug.CallStatck())
+				xlog.Errorf("%v is panic with %v, callstaick is \n%v", perr, xdebug.CallStack())
 			}
 		}()
 		return call()
