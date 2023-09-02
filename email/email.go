@@ -54,6 +54,7 @@ type EmailSender struct {
 	SmtpHost  string
 	SmtpPort  string
 	From      string
+	FromName  string
 	Title     string
 	Body      string
 }
@@ -66,9 +67,10 @@ func NewEmailSenderFromConfig(config *xprop.Config) (sender *EmailSender, err er
 		email/smtp_host,r|s,l:0;
 		email/smtp_port,r|s,l:0;
 		email/from,r|s,l:0;
+		email/from_name,r|s,l:0;
 		email/title,r|s,l:0;
 		email/body,r|s,l:0;
-	`, &sender.Username, &sender.Passsword, &sender.SmtpHost, &sender.SmtpPort, &sender.From, &sender.Title, &sender.Body)
+	`, &sender.Username, &sender.Passsword, &sender.SmtpHost, &sender.SmtpPort, &sender.From, &sender.FromName, &sender.Title, &sender.Body)
 	return
 }
 
