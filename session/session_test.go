@@ -1,6 +1,8 @@
 package session
 
 import (
+	"net/http"
+	_ "net/http/pprof"
 	"testing"
 
 	"github.com/codingeasygo/util/xhttp"
@@ -11,6 +13,7 @@ import (
 )
 
 func init() {
+	go http.ListenAndServe(":6063", nil)
 	redisURI := "redis.loc:6379?db=1"
 	rediscache.InitRedisPool(redisURI)
 	xhttp.EnableCookie()

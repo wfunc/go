@@ -23,7 +23,6 @@ type DbSessionBuilder struct {
 	Domain     string
 	MaxAge     int
 	Key        string
-	Sync       bool
 	ShowLog    bool
 	sessionLck sync.RWMutex
 	sessiones  map[string]*DbSession
@@ -109,11 +108,8 @@ func (d *DbSessionBuilder) FindSessionByKey(key string) (session *DbSession, err
 	d.sessionLck.RLock()
 	session = d.sessiones[key]
 	d.sessionLck.RUnlock()
-	if session != nil && !d.Sync {
+	if session != nil {
 		return
-	}
-	if session == nil {
-		session = NewDbSession(d)
 	}
 	conn := d.Redis()
 	defer conn.Close()
@@ -122,8 +118,15 @@ func (d *DbSessionBuilder) FindSessionByKey(key string) (session *DbSession, err
 	if err == nil && len(data) > 0 {
 		buf := bytes.NewBuffer(data)
 		decoder := gob.NewDecoder(buf)
-		err = decoder.Decode(session)
+		svalue := &dbSessionValue{Values: xmap.M{}}
+		err = decoder.Decode(svalue)
 		if err == nil {
+			session = NewDbSession(nil)
+			session.SafeM = xmap.NewSafeByBase(svalue.Values)
+			session.SID = svalue.SID
+			session.Last = svalue.Last
+			session.Time = svalue.Time
+			session.Builder = d
 			d.sessionLck.Lock()
 			d.sessiones[session.SID] = session
 			d.sessionLck.Unlock()
@@ -143,13 +146,20 @@ func (d *DbSessionBuilder) newCookie() *http.Cookie {
 	return c
 }
 
+type dbSessionValue struct {
+	Values xmap.M `json:"values,omitempty"`
+	SID    string `json:"id,omitempty"`   //the session id
+	Last   int64  `json:"last,omitempty"` //last update time
+	Time   int64  `json:"time,omitempty"` //create time
+}
+
 // DbSession is the http session by db
 type DbSession struct {
-	xmap.M  `json:"values,omitempty"` //the session values.
-	Builder *DbSessionBuilder         `json:"-"`
-	SID     string                    `json:"id,omitempty"`   //the session id
-	Last    int64                     `json:"last,omitempty"` //last update time
-	Time    int64                     `json:"time,omitempty"` //create time
+	*xmap.SafeM `json:"values,omitempty"` //the session values.
+	Builder     *DbSessionBuilder         `json:"-"`
+	SID         string                    `json:"id,omitempty"`   //the session id
+	Last        int64                     `json:"last,omitempty"` //last update time
+	Time        int64                     `json:"time,omitempty"` //create time
 }
 
 // NewDbSession will return new session.
@@ -157,7 +167,7 @@ func NewDbSession(b *DbSessionBuilder) *DbSession {
 	now := xsql.TimeNow().Timestamp()
 	return &DbSession{
 		Builder: b,
-		M:       xmap.M{},
+		SafeM:   xmap.NewSafe(),
 		Last:    now,
 		Time:    now,
 	}
@@ -170,9 +180,17 @@ func (s *DbSession) ID() string {
 
 // Flush all updated session value
 func (s *DbSession) Flush() (err error) {
+	uid := s.Value("uid")
+	s.SafeM.RLock()
+	defer s.SafeM.RUnlock()
 	buf := bytes.NewBuffer(nil)
 	encoder := gob.NewEncoder(buf)
-	err = encoder.Encode(s)
+	err = encoder.Encode(&dbSessionValue{ //copy
+		Values: s.SafeM.Raw().(xmap.M),
+		SID:    s.SID,
+		Last:   s.Last,
+		Time:   s.Time,
+	})
 	if err != nil {
 		xlog.Errorf("DbSession flush session to redist fail with %v", err)
 		return
@@ -181,7 +199,7 @@ func (s *DbSession) Flush() (err error) {
 	defer conn.Close()
 	_, err = conn.Do("MSET",
 		s.Builder.Key+"_"+s.SID, buf.Bytes(),
-		fmt.Sprintf(s.Builder.Key+"_%v_"+s.SID, s.Value("uid")), xsql.TimeNow().Timestamp(),
+		fmt.Sprintf(s.Builder.Key+"_%v_"+s.SID, uid), xsql.TimeNow().Timestamp(),
 	)
 	if err != nil {
 		xlog.Errorf("DbSession flush session to redist fail with %v", err)
