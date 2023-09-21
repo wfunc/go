@@ -1,6 +1,7 @@
 package sms
 
 import (
+	"math"
 	"math/rand"
 	"strings"
 	"sync"
@@ -42,6 +43,19 @@ var SendSms = func(v *VerifyPhone, phoneNumber string, templateParam xmap.M) (er
 
 var CaptchaVerify = func(v *VerifyPhone, id, code string) (err error) {
 	panic("verify captcha is not initial")
+}
+
+// Default code length is 6
+var CodeLen = 6
+
+// newCode will return code number
+func newCode(n int) int {
+	if n <= 0 {
+		return newCode(6)
+	}
+	min := int(math.Pow(10, float64(n-1)))
+	max := int(math.Pow(10, float64(n)))
+	return rand.Intn(max-min) + min
 }
 
 // LoadPhoneCode will return send code
@@ -123,7 +137,7 @@ func (v *VerifyPhone) SrvHTTP(hs *web.Session) web.Result {
 		v.CalledUser[unique] = now
 		v.CalledUserLck.Unlock()
 	}
-	number := rand.Intn(1000000)
+	number := newCode(CodeLen)
 	err = SendSms(v, phone, xmap.M{
 		"code": number,
 	})
