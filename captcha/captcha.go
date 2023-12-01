@@ -8,6 +8,8 @@ import (
 	"github.com/wfunc/go/util"
 )
 
+var DefaultLen = 6
+
 func CaptchaVerify(id, code string) (err error) {
 	if !captcha.VerifyString(id, code) {
 		err = define.ErrCodeInvalid
@@ -45,7 +47,7 @@ func CaptchaVerify(id, code string) (err error) {
 func NewCaptchaH(s *web.Session) web.Result {
 	return s.SendJSON(xmap.M{
 		"code":       define.Success,
-		"captcha_id": captcha.New(),
+		"captcha_id": captcha.NewLen(DefaultLen),
 	})
 }
 
