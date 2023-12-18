@@ -9,10 +9,11 @@ github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMe
 github.com/codingeasygo/crud v0.0.0-20230604050204-4e7316aa4767 h1:BlUQJpKL5x+rjFwmK5LhT989YEongy35VQoFuy/FTXA=
 github.com/codingeasygo/crud v0.0.0-20230604050204-4e7316aa4767/go.mod h1:aClYBIQOvyCprmYh0Wt/j0WcLrGTu255X9md7KFHoL0=
 github.com/codingeasygo/util v0.0.0-20230604045651-019e6b72f8e5/go.mod h1:CE705pc3Xn2F3nqMKhvfaigeXeDudpdteTzbf+2jwig=
-github.com/codingeasygo/util v0.0.0-20230905092720-cb8130b9031f h1:qJCOFxeKi23Z68Sp7hDS6A4bjCpEV0o1M2NyJG+k9aQ=
 github.com/codingeasygo/util v0.0.0-20230905092720-cb8130b9031f/go.mod h1:CE705pc3Xn2F3nqMKhvfaigeXeDudpdteTzbf+2jwig=
-github.com/codingeasygo/web v0.0.0-20230604050114-a4be98831e65 h1:wsCk/lD/cnoeWQ5+PV1XSSdTKlJa4Kt41MYYFFgXckw=
-github.com/codingeasygo/web v0.0.0-20230604050114-a4be98831e65/go.mod h1:DQUJLzj5c9VypjKiETa8+dzU1aKV7l1EfSG20GVnBZs=
+github.com/codingeasygo/util v0.0.0-20231202034448-7e31a61c18d8 h1:KTGrHfW1wWAo8IK0F8jUdXUn55anioWv9Jelm/EBxVY=
+github.com/codingeasygo/util v0.0.0-20231202034448-7e31a61c18d8/go.mod h1:CE705pc3Xn2F3nqMKhvfaigeXeDudpdteTzbf+2jwig=
+github.com/codingeasygo/web v0.0.0-20230907002627-38429b961da0 h1:EB2qTZ3dth9C7XAiQhmJbHY5faGfkVUr6p95oAdgm8k=
+github.com/codingeasygo/web v0.0.0-20230907002627-38429b961da0/go.mod h1:YOIpmocUy7mG3Q/z2tb37AR8PVNqdY9qs9R88ykBR70=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=

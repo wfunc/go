@@ -5,8 +5,8 @@ go 1.17
 require (
 	github.com/Centny/rediscache v0.0.0-20211021070038-18328f959a40
 	github.com/codingeasygo/crud v0.0.0-20230604050204-4e7316aa4767
-	github.com/codingeasygo/util v0.0.0-20230905092720-cb8130b9031f
-	github.com/codingeasygo/web v0.0.0-20230604050114-a4be98831e65
+	github.com/codingeasygo/util v0.0.0-20231202034448-7e31a61c18d8
+	github.com/codingeasygo/web v0.0.0-20230907002627-38429b961da0
 	github.com/dchest/captcha v1.0.0
 	github.com/gomodule/redigo v1.8.5
 	go.uber.org/zap v1.19.1
