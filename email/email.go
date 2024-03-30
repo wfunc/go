@@ -193,7 +193,7 @@ func (v *VerifyEmail) SrvHTTP(hs *web.Session) web.Result {
 	})
 	if err != nil {
 		xlog.Warnf("VerifyEmail send email by %v fail with %v", email, err)
-		return util.ReturnCodeLocalErr(hs, define.ServerError, "srv-err", err)
+		return util.ReturnCodeLocalErr(hs, define.ServerError, err.Error(), err)
 	}
 	conn := Redis()
 	defer conn.Close()
