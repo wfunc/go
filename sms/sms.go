@@ -143,7 +143,7 @@ func (v *VerifyPhone) SrvHTTP(hs *web.Session) web.Result {
 	})
 	if err != nil {
 		xlog.Warnf("VerifyPhone send sms by %v fail with %v", phone, err)
-		return util.ReturnCodeLocalErr(hs, define.ServerError, "srv-err", err)
+		return util.ReturnCodeLocalErr(hs, define.ServerError, err.Error(), err)
 	}
 	conn := Redis()
 	defer conn.Close()
