@@ -52,6 +52,9 @@ var CaptchaVerify = func(v *VerifyEmail, id, code string) (err error) {
 // Default code length is 6
 var CodeLen = 6
 
+// Default doesn't ignore case
+var IgnoreCase = false
+
 // newCode will return code number
 func newCode(n int) int {
 	if n <= 0 {
@@ -197,6 +200,9 @@ func (v *VerifyEmail) SrvHTTP(hs *web.Session) web.Result {
 	}
 	conn := Redis()
 	defer conn.Close()
+	if IgnoreCase {
+		email = strings.ToLower(strings.TrimSpace(email))
+	}
 	_, err = conn.Do("setex", v.Key+"_email_"+email, 1800, number)
 	if err != nil {
 		xlog.Warnf("VerifyEmail save sened sms by %v fail with %v", email, err)
