@@ -75,6 +75,7 @@ type EmailSender struct {
 	Title     string
 	Body      string
 	BodyFile  string
+	APIHost   string
 }
 
 func NewEmailSenderFromConfig(config *xprop.Config) (sender *EmailSender, err error) {
@@ -89,7 +90,8 @@ func NewEmailSenderFromConfig(config *xprop.Config) (sender *EmailSender, err er
 		email/title,r|s,l:0;
 		email/body,r|s,l:0;
 		email/body_file,o|s,l:0;
-	`, &sender.Username, &sender.Passsword, &sender.SmtpHost, &sender.SmtpPort, &sender.From, &sender.FromName, &sender.Title, &sender.Body, &sender.BodyFile)
+		email/api_host,o|s,l:0;
+	`, &sender.Username, &sender.Passsword, &sender.SmtpHost, &sender.SmtpPort, &sender.From, &sender.FromName, &sender.Title, &sender.Body, &sender.BodyFile, &sender.APIHost)
 	return
 }
 
