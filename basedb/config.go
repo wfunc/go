@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/codingeasygo/crud"
 	"github.com/codingeasygo/util/xmap"
+	"github.com/wfunc/crud"
 )
 
 var ConfigAll = []string{}

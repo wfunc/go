@@ -3,8 +3,8 @@ package util
 import (
 	"time"
 
-	"github.com/codingeasygo/crud/pgx"
 	"github.com/codingeasygo/util/xdebug"
+	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/xlog"
 )
 

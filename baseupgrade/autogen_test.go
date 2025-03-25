@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codingeasygo/crud/gen"
-	"github.com/codingeasygo/crud/pgx"
 	"github.com/codingeasygo/util/xsql"
+	"github.com/wfunc/crud/gen"
+	"github.com/wfunc/crud/pgx"
 )
 
 func init() {
@@ -102,7 +102,7 @@ var PgGen = gen.AutoGen{
 			"strings"
 			"testing"
 
-			"github.com/codingeasygo/crud"
+			"github.com/wfunc/crud"
 			"github.com/codingeasygo/util/uuid"
 		)
 	`,

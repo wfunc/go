@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/codingeasygo/crud/pgx"
 	"github.com/codingeasygo/util/xtime"
+	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/baseupgrade"
 )
 

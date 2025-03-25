@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/codingeasygo/crud"
 	"github.com/codingeasygo/util/xmap"
 	"github.com/codingeasygo/util/xsql"
+	"github.com/wfunc/crud"
 )
 
-//LoadObject will return the object data
+// LoadObject will return the object data
 func LoadObject(ctx context.Context, key string) (data xmap.M, err error) {
 	object, err := FindObject(ctx, key)
 	if err == nil && object.Value != nil {
@@ -19,7 +19,7 @@ func LoadObject(ctx context.Context, key string) (data xmap.M, err error) {
 	return
 }
 
-//UpsertObject will update object data
+// UpsertObject will update object data
 func UpsertObject(ctx context.Context, key string, data interface{}) (effected int64, err error) {
 	effected, err = UpsertObjectCall(Pool(), ctx, key, data)
 	return
@@ -48,7 +48,7 @@ func UpsertVersionObject(ctx context.Context, object *VersionObject) (err error)
 	return
 }
 
-//LoadLatestVersionObject will return latest version object by key
+// LoadLatestVersionObject will return latest version object by key
 func LoadLatestVersionObject(ctx context.Context, key string, pubs ...string) (object *VersionObject, err error) {
 	object = &VersionObject{}
 	sql := crud.QuerySQL(object, "#all")

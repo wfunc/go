@@ -3,9 +3,9 @@ package basedb
 import (
 	"context"
 
-	"github.com/codingeasygo/crud"
-	"github.com/codingeasygo/crud/gen"
-	"github.com/codingeasygo/crud/pgx"
+	"github.com/wfunc/crud"
+	"github.com/wfunc/crud/gen"
+	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/baseupgrade"
 	"github.com/wfunc/go/xlog"
 	"go.uber.org/zap"

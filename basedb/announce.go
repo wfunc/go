@@ -3,7 +3,7 @@ package basedb
 import (
 	"context"
 
-	"github.com/codingeasygo/crud"
+	"github.com/wfunc/crud"
 )
 
 func UpsertAnnounce(ctx context.Context, announce *Announce) (err error) {

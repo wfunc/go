@@ -1,4 +1,4 @@
-//auto gen func by autogen
+// auto gen func by autogen
 package basedb
 
 import (
@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codingeasygo/crud"
 	"github.com/codingeasygo/util/uuid"
+	"github.com/wfunc/crud"
 )
 
 func TestAutoAnnounce(t *testing.T) {
