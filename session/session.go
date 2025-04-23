@@ -41,7 +41,7 @@ func NewDbSessionBuilder() *DbSessionBuilder {
 	}
 }
 
-func (d *DbSessionBuilder) log(format string, args ...interface{}) {
+func (d *DbSessionBuilder) log(format string, args ...any) {
 	if d.ShowLog {
 		xlog.Debugf(format, args...)
 	}

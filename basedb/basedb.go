@@ -33,7 +33,7 @@ func CheckDb() (created bool, err error) {
 
 type BaseTableName string
 
-func (b BaseTableName) GetTableName(args ...interface{}) string {
+func (b BaseTableName) GetTableName(args ...any) string {
 	if len(b) > 0 && len(args) < 2 {
 		return SYS + "_" + string(b)
 	}

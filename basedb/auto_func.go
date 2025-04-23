@@ -13,7 +13,7 @@ import (
 	"github.com/wfunc/crud"
 )
 
-var GetQueryer interface{} = func() crud.Queryer { return Pool() }
+var GetQueryer any = func() crud.Queryer { return Pool() }
 
 // Validable is interface to valid
 type Validable interface {
@@ -33,7 +33,7 @@ const AnnounceFilterInsert = "marked,info,content,status,type,title"
 const AnnounceFilterUpdate = "marked,title,info,content,status,update_time"
 
 // EnumValid will valid value by AnnounceType
-func (o *AnnounceType) EnumValid(v interface{}) (err error) {
+func (o *AnnounceType) EnumValid(v any) (err error) {
 	var target AnnounceType
 	targetType := reflect.TypeOf(AnnounceType(0))
 	targetValue := reflect.ValueOf(v)
@@ -49,7 +49,7 @@ func (o *AnnounceType) EnumValid(v interface{}) (err error) {
 }
 
 // EnumValid will valid value by AnnounceTypeArray
-func (o *AnnounceTypeArray) EnumValid(v interface{}) (err error) {
+func (o *AnnounceTypeArray) EnumValid(v any) (err error) {
 	var target AnnounceType
 	targetType := reflect.TypeOf(AnnounceType(0))
 	targetValue := reflect.ValueOf(v)
@@ -77,7 +77,7 @@ func (o AnnounceTypeArray) InArray() (res string) {
 }
 
 // EnumValid will valid value by AnnounceStatus
-func (o *AnnounceStatus) EnumValid(v interface{}) (err error) {
+func (o *AnnounceStatus) EnumValid(v any) (err error) {
 	var target AnnounceStatus
 	targetType := reflect.TypeOf(AnnounceStatus(0))
 	targetValue := reflect.ValueOf(v)
@@ -93,7 +93,7 @@ func (o *AnnounceStatus) EnumValid(v interface{}) (err error) {
 }
 
 // EnumValid will valid value by AnnounceStatusArray
-func (o *AnnounceStatusArray) EnumValid(v interface{}) (err error) {
+func (o *AnnounceStatusArray) EnumValid(v any) (err error) {
 	var target AnnounceStatus
 	targetType := reflect.TypeOf(AnnounceStatus(0))
 	targetValue := reflect.ValueOf(v)
@@ -121,13 +121,13 @@ func (o AnnounceStatusArray) InArray() (res string) {
 }
 
 // MetaWithAnnounce will return announce meta data
-func MetaWithAnnounce(fields ...interface{}) (v []interface{}) {
+func MetaWithAnnounce(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("announce"), fields...)
 	return
 }
 
 // MetaWith will return announce meta data
-func (announce *Announce) MetaWith(fields ...interface{}) (v []interface{}) {
+func (announce *Announce) MetaWith(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("announce"), fields...)
 	return
 }
@@ -149,7 +149,7 @@ func (announce *Announce) Valid() (err error) {
 }
 
 // Insert will add announce to database
-func (announce *Announce) Insert(caller interface{}, ctx context.Context) (err error) {
+func (announce *Announce) Insert(caller any, ctx context.Context) (err error) {
 
 	if len(announce.Info) < 1 {
 		announce.Info = xsql.M{}
@@ -172,22 +172,22 @@ func (announce *Announce) Insert(caller interface{}, ctx context.Context) (err e
 }
 
 // UpdateFilter will update announce to database
-func (announce *Announce) UpdateFilter(caller interface{}, ctx context.Context, filter string) (err error) {
+func (announce *Announce) UpdateFilter(caller any, ctx context.Context, filter string) (err error) {
 	err = announce.UpdateFilterWheref(caller, ctx, filter, "")
 	return
 }
 
 // UpdateWheref will update announce to database
-func (announce *Announce) UpdateWheref(caller interface{}, ctx context.Context, formats string, formatArgs ...interface{}) (err error) {
+func (announce *Announce) UpdateWheref(caller any, ctx context.Context, formats string, formatArgs ...any) (err error) {
 	err = announce.UpdateFilterWheref(caller, ctx, AnnounceFilterUpdate, formats, formatArgs...)
 	return
 }
 
 // UpdateFilterWheref will update announce to database
-func (announce *Announce) UpdateFilterWheref(caller interface{}, ctx context.Context, filter string, formats string, formatArgs ...interface{}) (err error) {
+func (announce *Announce) UpdateFilterWheref(caller any, ctx context.Context, filter string, formats string, formatArgs ...any) (err error) {
 	announce.UpdateTime = xsql.TimeNow()
 	whereAll := []string{"tid=$%v"}
-	whereArg := []interface{}{announce.TID}
+	whereArg := []any{announce.TID}
 	if len(formats) > 0 {
 		whereAll = append(whereAll, formats)
 		whereArg = append(whereArg, formatArgs...)
@@ -203,7 +203,7 @@ func AddAnnounce(ctx context.Context, announce *Announce) (err error) {
 }
 
 // AddAnnounce will add announce to database
-func AddAnnounceCall(caller interface{}, ctx context.Context, announce *Announce) (err error) {
+func AddAnnounceCall(caller any, ctx context.Context, announce *Announce) (err error) {
 	err = announce.Insert(caller, ctx)
 	return
 }
@@ -215,31 +215,31 @@ func UpdateAnnounceFilter(ctx context.Context, announce *Announce, filter string
 }
 
 // UpdateAnnounceFilterCall will update announce to database
-func UpdateAnnounceFilterCall(caller interface{}, ctx context.Context, announce *Announce, filter string) (err error) {
+func UpdateAnnounceFilterCall(caller any, ctx context.Context, announce *Announce, filter string) (err error) {
 	err = announce.UpdateFilter(caller, ctx, filter)
 	return
 }
 
 // UpdateAnnounceWheref will update announce to database
-func UpdateAnnounceWheref(ctx context.Context, announce *Announce, formats string, formatArgs ...interface{}) (err error) {
+func UpdateAnnounceWheref(ctx context.Context, announce *Announce, formats string, formatArgs ...any) (err error) {
 	err = UpdateAnnounceWherefCall(GetQueryer, ctx, announce, formats, formatArgs...)
 	return
 }
 
 // UpdateAnnounceWherefCall will update announce to database
-func UpdateAnnounceWherefCall(caller interface{}, ctx context.Context, announce *Announce, formats string, formatArgs ...interface{}) (err error) {
+func UpdateAnnounceWherefCall(caller any, ctx context.Context, announce *Announce, formats string, formatArgs ...any) (err error) {
 	err = announce.UpdateWheref(caller, ctx, formats, formatArgs...)
 	return
 }
 
 // UpdateAnnounceFilterWheref will update announce to database
-func UpdateAnnounceFilterWheref(ctx context.Context, announce *Announce, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateAnnounceFilterWheref(ctx context.Context, announce *Announce, filter string, formats string, formatArgs ...any) (err error) {
 	err = UpdateAnnounceFilterWherefCall(GetQueryer, ctx, announce, filter, formats, formatArgs...)
 	return
 }
 
 // UpdateAnnounceFilterWherefCall will update announce to database
-func UpdateAnnounceFilterWherefCall(caller interface{}, ctx context.Context, announce *Announce, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateAnnounceFilterWherefCall(caller any, ctx context.Context, announce *Announce, filter string, formats string, formatArgs ...any) (err error) {
 	err = announce.UpdateFilterWheref(caller, ctx, filter, formats, formatArgs...)
 	return
 }
@@ -251,14 +251,14 @@ func FindAnnounce(ctx context.Context, announceID int64) (announce *Announce, er
 }
 
 // FindAnnounceCall will find announce by id from database
-func FindAnnounceCall(caller interface{}, ctx context.Context, announceID int64, lock bool) (announce *Announce, err error) {
+func FindAnnounceCall(caller any, ctx context.Context, announceID int64, lock bool) (announce *Announce, err error) {
 	where, args := crud.AppendWhere(nil, nil, true, "tid=$%v", announceID)
 	announce, err = FindAnnounceWhereCall(caller, ctx, lock, "and", where, args)
 	return
 }
 
 // FindAnnounceWhereCall will find announce by where from database
-func FindAnnounceWhereCall(caller interface{}, ctx context.Context, lock bool, join string, where []string, args []interface{}) (announce *Announce, err error) {
+func FindAnnounceWhereCall(caller any, ctx context.Context, lock bool, join string, where []string, args []any) (announce *Announce, err error) {
 	querySQL := crud.QuerySQL(&Announce{}, "#all")
 	querySQL = crud.JoinWhere(querySQL, where, join)
 	if lock {
@@ -269,13 +269,13 @@ func FindAnnounceWhereCall(caller interface{}, ctx context.Context, lock bool, j
 }
 
 // FindAnnounceWheref will find announce by where from database
-func FindAnnounceWheref(ctx context.Context, format string, args ...interface{}) (announce *Announce, err error) {
+func FindAnnounceWheref(ctx context.Context, format string, args ...any) (announce *Announce, err error) {
 	announce, err = FindAnnounceWherefCall(GetQueryer, ctx, false, format, args...)
 	return
 }
 
 // FindAnnounceWherefCall will find announce by where from database
-func FindAnnounceWherefCall(caller interface{}, ctx context.Context, lock bool, format string, args ...interface{}) (announce *Announce, err error) {
+func FindAnnounceWherefCall(caller any, ctx context.Context, lock bool, format string, args ...any) (announce *Announce, err error) {
 	querySQL := crud.QuerySQL(&Announce{}, "#all")
 	where, queryArgs := crud.AppendWheref(nil, nil, format, args...)
 	querySQL = crud.JoinWhere(querySQL, where, "and")
@@ -293,7 +293,7 @@ func ListAnnounceByID(ctx context.Context, announceIDs ...int64) (announceList [
 }
 
 // ListAnnounceByIDCall will list announce by id from database
-func ListAnnounceByIDCall(caller interface{}, ctx context.Context, announceIDs ...int64) (announceList []*Announce, announceMap map[int64]*Announce, err error) {
+func ListAnnounceByIDCall(caller any, ctx context.Context, announceIDs ...int64) (announceList []*Announce, announceMap map[int64]*Announce, err error) {
 	if len(announceIDs) < 1 {
 		announceMap = map[int64]*Announce{}
 		return
@@ -303,13 +303,13 @@ func ListAnnounceByIDCall(caller interface{}, ctx context.Context, announceIDs .
 }
 
 // ScanAnnounceByID will list announce by id from database
-func ScanAnnounceByID(ctx context.Context, announceIDs []int64, dest ...interface{}) (err error) {
+func ScanAnnounceByID(ctx context.Context, announceIDs []int64, dest ...any) (err error) {
 	err = ScanAnnounceByIDCall(GetQueryer, ctx, announceIDs, dest...)
 	return
 }
 
 // ScanAnnounceByIDCall will list announce by id from database
-func ScanAnnounceByIDCall(caller interface{}, ctx context.Context, announceIDs []int64, dest ...interface{}) (err error) {
+func ScanAnnounceByIDCall(caller any, ctx context.Context, announceIDs []int64, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&Announce{}, "#all")
 	where := append([]string{}, fmt.Sprintf("tid in (%v)", xsql.Int64Array(announceIDs).InArray()))
 	querySQL = crud.JoinWhere(querySQL, where, " and ")
@@ -318,13 +318,13 @@ func ScanAnnounceByIDCall(caller interface{}, ctx context.Context, announceIDs [
 }
 
 // ScanAnnounce will list announce by format from database
-func ScanAnnounceWheref(ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanAnnounceWheref(ctx context.Context, format string, args []any, dest ...any) (err error) {
 	err = ScanAnnounceWherefCall(GetQueryer, ctx, format, args, dest...)
 	return
 }
 
 // ScanAnnounceCall will list announce by format from database
-func ScanAnnounceWherefCall(caller interface{}, ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanAnnounceWherefCall(caller any, ctx context.Context, format string, args []any, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&Announce{}, "#all")
 	var where []string
 	if len(format) > 0 {
@@ -348,13 +348,13 @@ const ConfigFilterInsert = ""
 const ConfigFilterUpdate = "update_time"
 
 // MetaWithConfig will return config meta data
-func MetaWithConfig(fields ...interface{}) (v []interface{}) {
+func MetaWithConfig(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("config"), fields...)
 	return
 }
 
 // MetaWith will return config meta data
-func (config *Config) MetaWith(fields ...interface{}) (v []interface{}) {
+func (config *Config) MetaWith(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("config"), fields...)
 	return
 }
@@ -376,7 +376,7 @@ func (config *Config) Valid() (err error) {
 }
 
 // Insert will add config to database
-func (config *Config) Insert(caller interface{}, ctx context.Context) (err error) {
+func (config *Config) Insert(caller any, ctx context.Context) (err error) {
 
 	if config.UpdateTime.Timestamp() < 1 {
 		config.UpdateTime = xsql.TimeNow()
@@ -387,22 +387,22 @@ func (config *Config) Insert(caller interface{}, ctx context.Context) (err error
 }
 
 // UpdateFilter will update config to database
-func (config *Config) UpdateFilter(caller interface{}, ctx context.Context, filter string) (err error) {
+func (config *Config) UpdateFilter(caller any, ctx context.Context, filter string) (err error) {
 	err = config.UpdateFilterWheref(caller, ctx, filter, "")
 	return
 }
 
 // UpdateWheref will update config to database
-func (config *Config) UpdateWheref(caller interface{}, ctx context.Context, formats string, formatArgs ...interface{}) (err error) {
+func (config *Config) UpdateWheref(caller any, ctx context.Context, formats string, formatArgs ...any) (err error) {
 	err = config.UpdateFilterWheref(caller, ctx, ConfigFilterUpdate, formats, formatArgs...)
 	return
 }
 
 // UpdateFilterWheref will update config to database
-func (config *Config) UpdateFilterWheref(caller interface{}, ctx context.Context, filter string, formats string, formatArgs ...interface{}) (err error) {
+func (config *Config) UpdateFilterWheref(caller any, ctx context.Context, filter string, formats string, formatArgs ...any) (err error) {
 	config.UpdateTime = xsql.TimeNow()
 	whereAll := []string{"key=$%v"}
-	whereArg := []interface{}{config.Key}
+	whereArg := []any{config.Key}
 	if len(formats) > 0 {
 		whereAll = append(whereAll, formats)
 		whereArg = append(whereArg, formatArgs...)
@@ -418,31 +418,31 @@ func UpdateConfigFilter(ctx context.Context, config *Config, filter string) (err
 }
 
 // UpdateConfigFilterCall will update config to database
-func UpdateConfigFilterCall(caller interface{}, ctx context.Context, config *Config, filter string) (err error) {
+func UpdateConfigFilterCall(caller any, ctx context.Context, config *Config, filter string) (err error) {
 	err = config.UpdateFilter(caller, ctx, filter)
 	return
 }
 
 // UpdateConfigWheref will update config to database
-func UpdateConfigWheref(ctx context.Context, config *Config, formats string, formatArgs ...interface{}) (err error) {
+func UpdateConfigWheref(ctx context.Context, config *Config, formats string, formatArgs ...any) (err error) {
 	err = UpdateConfigWherefCall(GetQueryer, ctx, config, formats, formatArgs...)
 	return
 }
 
 // UpdateConfigWherefCall will update config to database
-func UpdateConfigWherefCall(caller interface{}, ctx context.Context, config *Config, formats string, formatArgs ...interface{}) (err error) {
+func UpdateConfigWherefCall(caller any, ctx context.Context, config *Config, formats string, formatArgs ...any) (err error) {
 	err = config.UpdateWheref(caller, ctx, formats, formatArgs...)
 	return
 }
 
 // UpdateConfigFilterWheref will update config to database
-func UpdateConfigFilterWheref(ctx context.Context, config *Config, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateConfigFilterWheref(ctx context.Context, config *Config, filter string, formats string, formatArgs ...any) (err error) {
 	err = UpdateConfigFilterWherefCall(GetQueryer, ctx, config, filter, formats, formatArgs...)
 	return
 }
 
 // UpdateConfigFilterWherefCall will update config to database
-func UpdateConfigFilterWherefCall(caller interface{}, ctx context.Context, config *Config, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateConfigFilterWherefCall(caller any, ctx context.Context, config *Config, filter string, formats string, formatArgs ...any) (err error) {
 	err = config.UpdateFilterWheref(caller, ctx, filter, formats, formatArgs...)
 	return
 }
@@ -454,14 +454,14 @@ func FindConfig(ctx context.Context, configID string) (config *Config, err error
 }
 
 // FindConfigCall will find config by id from database
-func FindConfigCall(caller interface{}, ctx context.Context, configID string, lock bool) (config *Config, err error) {
+func FindConfigCall(caller any, ctx context.Context, configID string, lock bool) (config *Config, err error) {
 	where, args := crud.AppendWhere(nil, nil, true, "key=$%v", configID)
 	config, err = FindConfigWhereCall(caller, ctx, lock, "and", where, args)
 	return
 }
 
 // FindConfigWhereCall will find config by where from database
-func FindConfigWhereCall(caller interface{}, ctx context.Context, lock bool, join string, where []string, args []interface{}) (config *Config, err error) {
+func FindConfigWhereCall(caller any, ctx context.Context, lock bool, join string, where []string, args []any) (config *Config, err error) {
 	querySQL := crud.QuerySQL(&Config{}, "#all")
 	querySQL = crud.JoinWhere(querySQL, where, join)
 	if lock {
@@ -472,13 +472,13 @@ func FindConfigWhereCall(caller interface{}, ctx context.Context, lock bool, joi
 }
 
 // FindConfigWheref will find config by where from database
-func FindConfigWheref(ctx context.Context, format string, args ...interface{}) (config *Config, err error) {
+func FindConfigWheref(ctx context.Context, format string, args ...any) (config *Config, err error) {
 	config, err = FindConfigWherefCall(GetQueryer, ctx, false, format, args...)
 	return
 }
 
 // FindConfigWherefCall will find config by where from database
-func FindConfigWherefCall(caller interface{}, ctx context.Context, lock bool, format string, args ...interface{}) (config *Config, err error) {
+func FindConfigWherefCall(caller any, ctx context.Context, lock bool, format string, args ...any) (config *Config, err error) {
 	querySQL := crud.QuerySQL(&Config{}, "#all")
 	where, queryArgs := crud.AppendWheref(nil, nil, format, args...)
 	querySQL = crud.JoinWhere(querySQL, where, "and")
@@ -496,7 +496,7 @@ func ListConfigByID(ctx context.Context, configIDs ...string) (configList []*Con
 }
 
 // ListConfigByIDCall will list config by id from database
-func ListConfigByIDCall(caller interface{}, ctx context.Context, configIDs ...string) (configList []*Config, configMap map[string]*Config, err error) {
+func ListConfigByIDCall(caller any, ctx context.Context, configIDs ...string) (configList []*Config, configMap map[string]*Config, err error) {
 	if len(configIDs) < 1 {
 		configMap = map[string]*Config{}
 		return
@@ -506,13 +506,13 @@ func ListConfigByIDCall(caller interface{}, ctx context.Context, configIDs ...st
 }
 
 // ScanConfigByID will list config by id from database
-func ScanConfigByID(ctx context.Context, configIDs []string, dest ...interface{}) (err error) {
+func ScanConfigByID(ctx context.Context, configIDs []string, dest ...any) (err error) {
 	err = ScanConfigByIDCall(GetQueryer, ctx, configIDs, dest...)
 	return
 }
 
 // ScanConfigByIDCall will list config by id from database
-func ScanConfigByIDCall(caller interface{}, ctx context.Context, configIDs []string, dest ...interface{}) (err error) {
+func ScanConfigByIDCall(caller any, ctx context.Context, configIDs []string, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&Config{}, "#all")
 	where := append([]string{}, fmt.Sprintf("key in (%v)", xsql.StringArray(configIDs).InArray()))
 	querySQL = crud.JoinWhere(querySQL, where, " and ")
@@ -521,13 +521,13 @@ func ScanConfigByIDCall(caller interface{}, ctx context.Context, configIDs []str
 }
 
 // ScanConfig will list config by format from database
-func ScanConfigWheref(ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanConfigWheref(ctx context.Context, format string, args []any, dest ...any) (err error) {
 	err = ScanConfigWherefCall(GetQueryer, ctx, format, args, dest...)
 	return
 }
 
 // ScanConfigCall will list config by format from database
-func ScanConfigWherefCall(caller interface{}, ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanConfigWherefCall(caller any, ctx context.Context, format string, args []any, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&Config{}, "#all")
 	var where []string
 	if len(format) > 0 {
@@ -551,7 +551,7 @@ const ObjectFilterInsert = ""
 const ObjectFilterUpdate = "update_time"
 
 // EnumValid will valid value by ObjectStatus
-func (o *ObjectStatus) EnumValid(v interface{}) (err error) {
+func (o *ObjectStatus) EnumValid(v any) (err error) {
 	var target ObjectStatus
 	targetType := reflect.TypeOf(ObjectStatus(0))
 	targetValue := reflect.ValueOf(v)
@@ -567,7 +567,7 @@ func (o *ObjectStatus) EnumValid(v interface{}) (err error) {
 }
 
 // EnumValid will valid value by ObjectStatusArray
-func (o *ObjectStatusArray) EnumValid(v interface{}) (err error) {
+func (o *ObjectStatusArray) EnumValid(v any) (err error) {
 	var target ObjectStatus
 	targetType := reflect.TypeOf(ObjectStatus(0))
 	targetValue := reflect.ValueOf(v)
@@ -595,13 +595,13 @@ func (o ObjectStatusArray) InArray() (res string) {
 }
 
 // MetaWithObject will return object meta data
-func MetaWithObject(fields ...interface{}) (v []interface{}) {
+func MetaWithObject(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("object"), fields...)
 	return
 }
 
 // MetaWith will return object meta data
-func (object *Object) MetaWith(fields ...interface{}) (v []interface{}) {
+func (object *Object) MetaWith(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("object"), fields...)
 	return
 }
@@ -623,7 +623,7 @@ func (object *Object) Valid() (err error) {
 }
 
 // Insert will add object to database
-func (object *Object) Insert(caller interface{}, ctx context.Context) (err error) {
+func (object *Object) Insert(caller any, ctx context.Context) (err error) {
 
 	if len(object.Value) < 1 {
 		object.Value = xsql.M{}
@@ -642,22 +642,22 @@ func (object *Object) Insert(caller interface{}, ctx context.Context) (err error
 }
 
 // UpdateFilter will update object to database
-func (object *Object) UpdateFilter(caller interface{}, ctx context.Context, filter string) (err error) {
+func (object *Object) UpdateFilter(caller any, ctx context.Context, filter string) (err error) {
 	err = object.UpdateFilterWheref(caller, ctx, filter, "")
 	return
 }
 
 // UpdateWheref will update object to database
-func (object *Object) UpdateWheref(caller interface{}, ctx context.Context, formats string, formatArgs ...interface{}) (err error) {
+func (object *Object) UpdateWheref(caller any, ctx context.Context, formats string, formatArgs ...any) (err error) {
 	err = object.UpdateFilterWheref(caller, ctx, ObjectFilterUpdate, formats, formatArgs...)
 	return
 }
 
 // UpdateFilterWheref will update object to database
-func (object *Object) UpdateFilterWheref(caller interface{}, ctx context.Context, filter string, formats string, formatArgs ...interface{}) (err error) {
+func (object *Object) UpdateFilterWheref(caller any, ctx context.Context, filter string, formats string, formatArgs ...any) (err error) {
 	object.UpdateTime = xsql.TimeNow()
 	whereAll := []string{"key=$%v"}
-	whereArg := []interface{}{object.Key}
+	whereArg := []any{object.Key}
 	if len(formats) > 0 {
 		whereAll = append(whereAll, formats)
 		whereArg = append(whereArg, formatArgs...)
@@ -673,31 +673,31 @@ func UpdateObjectFilter(ctx context.Context, object *Object, filter string) (err
 }
 
 // UpdateObjectFilterCall will update object to database
-func UpdateObjectFilterCall(caller interface{}, ctx context.Context, object *Object, filter string) (err error) {
+func UpdateObjectFilterCall(caller any, ctx context.Context, object *Object, filter string) (err error) {
 	err = object.UpdateFilter(caller, ctx, filter)
 	return
 }
 
 // UpdateObjectWheref will update object to database
-func UpdateObjectWheref(ctx context.Context, object *Object, formats string, formatArgs ...interface{}) (err error) {
+func UpdateObjectWheref(ctx context.Context, object *Object, formats string, formatArgs ...any) (err error) {
 	err = UpdateObjectWherefCall(GetQueryer, ctx, object, formats, formatArgs...)
 	return
 }
 
 // UpdateObjectWherefCall will update object to database
-func UpdateObjectWherefCall(caller interface{}, ctx context.Context, object *Object, formats string, formatArgs ...interface{}) (err error) {
+func UpdateObjectWherefCall(caller any, ctx context.Context, object *Object, formats string, formatArgs ...any) (err error) {
 	err = object.UpdateWheref(caller, ctx, formats, formatArgs...)
 	return
 }
 
 // UpdateObjectFilterWheref will update object to database
-func UpdateObjectFilterWheref(ctx context.Context, object *Object, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateObjectFilterWheref(ctx context.Context, object *Object, filter string, formats string, formatArgs ...any) (err error) {
 	err = UpdateObjectFilterWherefCall(GetQueryer, ctx, object, filter, formats, formatArgs...)
 	return
 }
 
 // UpdateObjectFilterWherefCall will update object to database
-func UpdateObjectFilterWherefCall(caller interface{}, ctx context.Context, object *Object, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateObjectFilterWherefCall(caller any, ctx context.Context, object *Object, filter string, formats string, formatArgs ...any) (err error) {
 	err = object.UpdateFilterWheref(caller, ctx, filter, formats, formatArgs...)
 	return
 }
@@ -709,14 +709,14 @@ func FindObject(ctx context.Context, objectID string) (object *Object, err error
 }
 
 // FindObjectCall will find object by id from database
-func FindObjectCall(caller interface{}, ctx context.Context, objectID string, lock bool) (object *Object, err error) {
+func FindObjectCall(caller any, ctx context.Context, objectID string, lock bool) (object *Object, err error) {
 	where, args := crud.AppendWhere(nil, nil, true, "key=$%v", objectID)
 	object, err = FindObjectWhereCall(caller, ctx, lock, "and", where, args)
 	return
 }
 
 // FindObjectWhereCall will find object by where from database
-func FindObjectWhereCall(caller interface{}, ctx context.Context, lock bool, join string, where []string, args []interface{}) (object *Object, err error) {
+func FindObjectWhereCall(caller any, ctx context.Context, lock bool, join string, where []string, args []any) (object *Object, err error) {
 	querySQL := crud.QuerySQL(&Object{}, "#all")
 	querySQL = crud.JoinWhere(querySQL, where, join)
 	if lock {
@@ -727,13 +727,13 @@ func FindObjectWhereCall(caller interface{}, ctx context.Context, lock bool, joi
 }
 
 // FindObjectWheref will find object by where from database
-func FindObjectWheref(ctx context.Context, format string, args ...interface{}) (object *Object, err error) {
+func FindObjectWheref(ctx context.Context, format string, args ...any) (object *Object, err error) {
 	object, err = FindObjectWherefCall(GetQueryer, ctx, false, format, args...)
 	return
 }
 
 // FindObjectWherefCall will find object by where from database
-func FindObjectWherefCall(caller interface{}, ctx context.Context, lock bool, format string, args ...interface{}) (object *Object, err error) {
+func FindObjectWherefCall(caller any, ctx context.Context, lock bool, format string, args ...any) (object *Object, err error) {
 	querySQL := crud.QuerySQL(&Object{}, "#all")
 	where, queryArgs := crud.AppendWheref(nil, nil, format, args...)
 	querySQL = crud.JoinWhere(querySQL, where, "and")
@@ -751,7 +751,7 @@ func ListObjectByID(ctx context.Context, objectIDs ...string) (objectList []*Obj
 }
 
 // ListObjectByIDCall will list object by id from database
-func ListObjectByIDCall(caller interface{}, ctx context.Context, objectIDs ...string) (objectList []*Object, objectMap map[string]*Object, err error) {
+func ListObjectByIDCall(caller any, ctx context.Context, objectIDs ...string) (objectList []*Object, objectMap map[string]*Object, err error) {
 	if len(objectIDs) < 1 {
 		objectMap = map[string]*Object{}
 		return
@@ -761,13 +761,13 @@ func ListObjectByIDCall(caller interface{}, ctx context.Context, objectIDs ...st
 }
 
 // ScanObjectByID will list object by id from database
-func ScanObjectByID(ctx context.Context, objectIDs []string, dest ...interface{}) (err error) {
+func ScanObjectByID(ctx context.Context, objectIDs []string, dest ...any) (err error) {
 	err = ScanObjectByIDCall(GetQueryer, ctx, objectIDs, dest...)
 	return
 }
 
 // ScanObjectByIDCall will list object by id from database
-func ScanObjectByIDCall(caller interface{}, ctx context.Context, objectIDs []string, dest ...interface{}) (err error) {
+func ScanObjectByIDCall(caller any, ctx context.Context, objectIDs []string, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&Object{}, "#all")
 	where := append([]string{}, fmt.Sprintf("key in (%v)", xsql.StringArray(objectIDs).InArray()))
 	querySQL = crud.JoinWhere(querySQL, where, " and ")
@@ -776,13 +776,13 @@ func ScanObjectByIDCall(caller interface{}, ctx context.Context, objectIDs []str
 }
 
 // ScanObject will list object by format from database
-func ScanObjectWheref(ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanObjectWheref(ctx context.Context, format string, args []any, dest ...any) (err error) {
 	err = ScanObjectWherefCall(GetQueryer, ctx, format, args, dest...)
 	return
 }
 
 // ScanObjectCall will list object by format from database
-func ScanObjectWherefCall(caller interface{}, ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanObjectWherefCall(caller any, ctx context.Context, format string, args []any, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&Object{}, "#all")
 	var where []string
 	if len(format) > 0 {
@@ -806,7 +806,7 @@ const VersionObjectFilterInsert = "key,value,pub,status"
 const VersionObjectFilterUpdate = "pub,value,status,update_time"
 
 // EnumValid will valid value by VersionObjectStatus
-func (o *VersionObjectStatus) EnumValid(v interface{}) (err error) {
+func (o *VersionObjectStatus) EnumValid(v any) (err error) {
 	var target VersionObjectStatus
 	targetType := reflect.TypeOf(VersionObjectStatus(0))
 	targetValue := reflect.ValueOf(v)
@@ -822,7 +822,7 @@ func (o *VersionObjectStatus) EnumValid(v interface{}) (err error) {
 }
 
 // EnumValid will valid value by VersionObjectStatusArray
-func (o *VersionObjectStatusArray) EnumValid(v interface{}) (err error) {
+func (o *VersionObjectStatusArray) EnumValid(v any) (err error) {
 	var target VersionObjectStatus
 	targetType := reflect.TypeOf(VersionObjectStatus(0))
 	targetValue := reflect.ValueOf(v)
@@ -850,13 +850,13 @@ func (o VersionObjectStatusArray) InArray() (res string) {
 }
 
 // MetaWithVersionObject will return version_object meta data
-func MetaWithVersionObject(fields ...interface{}) (v []interface{}) {
+func MetaWithVersionObject(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("version_object"), fields...)
 	return
 }
 
 // MetaWith will return version_object meta data
-func (versionObject *VersionObject) MetaWith(fields ...interface{}) (v []interface{}) {
+func (versionObject *VersionObject) MetaWith(fields ...any) (v []any) {
 	v = crud.MetaWith(BaseTableName("version_object"), fields...)
 	return
 }
@@ -878,7 +878,7 @@ func (versionObject *VersionObject) Valid() (err error) {
 }
 
 // Insert will add version_object to database
-func (versionObject *VersionObject) Insert(caller interface{}, ctx context.Context) (err error) {
+func (versionObject *VersionObject) Insert(caller any, ctx context.Context) (err error) {
 
 	if len(versionObject.Value) < 1 {
 		versionObject.Value = xsql.M{}
@@ -897,22 +897,22 @@ func (versionObject *VersionObject) Insert(caller interface{}, ctx context.Conte
 }
 
 // UpdateFilter will update version_object to database
-func (versionObject *VersionObject) UpdateFilter(caller interface{}, ctx context.Context, filter string) (err error) {
+func (versionObject *VersionObject) UpdateFilter(caller any, ctx context.Context, filter string) (err error) {
 	err = versionObject.UpdateFilterWheref(caller, ctx, filter, "")
 	return
 }
 
 // UpdateWheref will update version_object to database
-func (versionObject *VersionObject) UpdateWheref(caller interface{}, ctx context.Context, formats string, formatArgs ...interface{}) (err error) {
+func (versionObject *VersionObject) UpdateWheref(caller any, ctx context.Context, formats string, formatArgs ...any) (err error) {
 	err = versionObject.UpdateFilterWheref(caller, ctx, VersionObjectFilterUpdate, formats, formatArgs...)
 	return
 }
 
 // UpdateFilterWheref will update version_object to database
-func (versionObject *VersionObject) UpdateFilterWheref(caller interface{}, ctx context.Context, filter string, formats string, formatArgs ...interface{}) (err error) {
+func (versionObject *VersionObject) UpdateFilterWheref(caller any, ctx context.Context, filter string, formats string, formatArgs ...any) (err error) {
 	versionObject.UpdateTime = xsql.TimeNow()
 	whereAll := []string{"tid=$%v"}
-	whereArg := []interface{}{versionObject.TID}
+	whereArg := []any{versionObject.TID}
 	if len(formats) > 0 {
 		whereAll = append(whereAll, formats)
 		whereArg = append(whereArg, formatArgs...)
@@ -928,7 +928,7 @@ func AddVersionObject(ctx context.Context, versionObject *VersionObject) (err er
 }
 
 // AddVersionObject will add version_object to database
-func AddVersionObjectCall(caller interface{}, ctx context.Context, versionObject *VersionObject) (err error) {
+func AddVersionObjectCall(caller any, ctx context.Context, versionObject *VersionObject) (err error) {
 	err = versionObject.Insert(caller, ctx)
 	return
 }
@@ -940,31 +940,31 @@ func UpdateVersionObjectFilter(ctx context.Context, versionObject *VersionObject
 }
 
 // UpdateVersionObjectFilterCall will update version_object to database
-func UpdateVersionObjectFilterCall(caller interface{}, ctx context.Context, versionObject *VersionObject, filter string) (err error) {
+func UpdateVersionObjectFilterCall(caller any, ctx context.Context, versionObject *VersionObject, filter string) (err error) {
 	err = versionObject.UpdateFilter(caller, ctx, filter)
 	return
 }
 
 // UpdateVersionObjectWheref will update version_object to database
-func UpdateVersionObjectWheref(ctx context.Context, versionObject *VersionObject, formats string, formatArgs ...interface{}) (err error) {
+func UpdateVersionObjectWheref(ctx context.Context, versionObject *VersionObject, formats string, formatArgs ...any) (err error) {
 	err = UpdateVersionObjectWherefCall(GetQueryer, ctx, versionObject, formats, formatArgs...)
 	return
 }
 
 // UpdateVersionObjectWherefCall will update version_object to database
-func UpdateVersionObjectWherefCall(caller interface{}, ctx context.Context, versionObject *VersionObject, formats string, formatArgs ...interface{}) (err error) {
+func UpdateVersionObjectWherefCall(caller any, ctx context.Context, versionObject *VersionObject, formats string, formatArgs ...any) (err error) {
 	err = versionObject.UpdateWheref(caller, ctx, formats, formatArgs...)
 	return
 }
 
 // UpdateVersionObjectFilterWheref will update version_object to database
-func UpdateVersionObjectFilterWheref(ctx context.Context, versionObject *VersionObject, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateVersionObjectFilterWheref(ctx context.Context, versionObject *VersionObject, filter string, formats string, formatArgs ...any) (err error) {
 	err = UpdateVersionObjectFilterWherefCall(GetQueryer, ctx, versionObject, filter, formats, formatArgs...)
 	return
 }
 
 // UpdateVersionObjectFilterWherefCall will update version_object to database
-func UpdateVersionObjectFilterWherefCall(caller interface{}, ctx context.Context, versionObject *VersionObject, filter string, formats string, formatArgs ...interface{}) (err error) {
+func UpdateVersionObjectFilterWherefCall(caller any, ctx context.Context, versionObject *VersionObject, filter string, formats string, formatArgs ...any) (err error) {
 	err = versionObject.UpdateFilterWheref(caller, ctx, filter, formats, formatArgs...)
 	return
 }
@@ -976,14 +976,14 @@ func FindVersionObject(ctx context.Context, versionObjectID int64) (versionObjec
 }
 
 // FindVersionObjectCall will find version_object by id from database
-func FindVersionObjectCall(caller interface{}, ctx context.Context, versionObjectID int64, lock bool) (versionObject *VersionObject, err error) {
+func FindVersionObjectCall(caller any, ctx context.Context, versionObjectID int64, lock bool) (versionObject *VersionObject, err error) {
 	where, args := crud.AppendWhere(nil, nil, true, "tid=$%v", versionObjectID)
 	versionObject, err = FindVersionObjectWhereCall(caller, ctx, lock, "and", where, args)
 	return
 }
 
 // FindVersionObjectWhereCall will find version_object by where from database
-func FindVersionObjectWhereCall(caller interface{}, ctx context.Context, lock bool, join string, where []string, args []interface{}) (versionObject *VersionObject, err error) {
+func FindVersionObjectWhereCall(caller any, ctx context.Context, lock bool, join string, where []string, args []any) (versionObject *VersionObject, err error) {
 	querySQL := crud.QuerySQL(&VersionObject{}, "#all")
 	querySQL = crud.JoinWhere(querySQL, where, join)
 	if lock {
@@ -994,13 +994,13 @@ func FindVersionObjectWhereCall(caller interface{}, ctx context.Context, lock bo
 }
 
 // FindVersionObjectWheref will find version_object by where from database
-func FindVersionObjectWheref(ctx context.Context, format string, args ...interface{}) (versionObject *VersionObject, err error) {
+func FindVersionObjectWheref(ctx context.Context, format string, args ...any) (versionObject *VersionObject, err error) {
 	versionObject, err = FindVersionObjectWherefCall(GetQueryer, ctx, false, format, args...)
 	return
 }
 
 // FindVersionObjectWherefCall will find version_object by where from database
-func FindVersionObjectWherefCall(caller interface{}, ctx context.Context, lock bool, format string, args ...interface{}) (versionObject *VersionObject, err error) {
+func FindVersionObjectWherefCall(caller any, ctx context.Context, lock bool, format string, args ...any) (versionObject *VersionObject, err error) {
 	querySQL := crud.QuerySQL(&VersionObject{}, "#all")
 	where, queryArgs := crud.AppendWheref(nil, nil, format, args...)
 	querySQL = crud.JoinWhere(querySQL, where, "and")
@@ -1018,7 +1018,7 @@ func ListVersionObjectByID(ctx context.Context, versionObjectIDs ...int64) (vers
 }
 
 // ListVersionObjectByIDCall will list version_object by id from database
-func ListVersionObjectByIDCall(caller interface{}, ctx context.Context, versionObjectIDs ...int64) (versionObjectList []*VersionObject, versionObjectMap map[int64]*VersionObject, err error) {
+func ListVersionObjectByIDCall(caller any, ctx context.Context, versionObjectIDs ...int64) (versionObjectList []*VersionObject, versionObjectMap map[int64]*VersionObject, err error) {
 	if len(versionObjectIDs) < 1 {
 		versionObjectMap = map[int64]*VersionObject{}
 		return
@@ -1028,13 +1028,13 @@ func ListVersionObjectByIDCall(caller interface{}, ctx context.Context, versionO
 }
 
 // ScanVersionObjectByID will list version_object by id from database
-func ScanVersionObjectByID(ctx context.Context, versionObjectIDs []int64, dest ...interface{}) (err error) {
+func ScanVersionObjectByID(ctx context.Context, versionObjectIDs []int64, dest ...any) (err error) {
 	err = ScanVersionObjectByIDCall(GetQueryer, ctx, versionObjectIDs, dest...)
 	return
 }
 
 // ScanVersionObjectByIDCall will list version_object by id from database
-func ScanVersionObjectByIDCall(caller interface{}, ctx context.Context, versionObjectIDs []int64, dest ...interface{}) (err error) {
+func ScanVersionObjectByIDCall(caller any, ctx context.Context, versionObjectIDs []int64, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&VersionObject{}, "#all")
 	where := append([]string{}, fmt.Sprintf("tid in (%v)", xsql.Int64Array(versionObjectIDs).InArray()))
 	querySQL = crud.JoinWhere(querySQL, where, " and ")
@@ -1043,13 +1043,13 @@ func ScanVersionObjectByIDCall(caller interface{}, ctx context.Context, versionO
 }
 
 // ScanVersionObject will list version_object by format from database
-func ScanVersionObjectWheref(ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanVersionObjectWheref(ctx context.Context, format string, args []any, dest ...any) (err error) {
 	err = ScanVersionObjectWherefCall(GetQueryer, ctx, format, args, dest...)
 	return
 }
 
 // ScanVersionObjectCall will list version_object by format from database
-func ScanVersionObjectWherefCall(caller interface{}, ctx context.Context, format string, args []interface{}, dest ...interface{}) (err error) {
+func ScanVersionObjectWherefCall(caller any, ctx context.Context, format string, args []any, dest ...any) (err error) {
 	querySQL := crud.QuerySQL(&VersionObject{}, "#all")
 	var where []string
 	if len(format) > 0 {

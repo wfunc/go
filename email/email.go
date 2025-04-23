@@ -163,7 +163,7 @@ func (v *VerifyEmail) SrvHTTP(hs *web.Session) web.Result {
 	if v.Type == "captcha" {
 		err = CaptchaVerify(v, captchaID, captchaCode)
 		if err != nil {
-			return hs.SendJSON(map[string]interface{}{
+			return hs.SendJSON(map[string]any{
 				"code":    define.CodeInvalid,
 				"message": err.Error(),
 			})
@@ -183,7 +183,7 @@ func (v *VerifyEmail) SrvHTTP(hs *web.Session) web.Result {
 		if now-last < v.Limit {
 			v.CalledUserLck.Unlock()
 			// return util.ReturnCodeLocalErr(hs, define.Frequently, "srv-err", err)
-			return hs.SendJSON(map[string]interface{}{
+			return hs.SendJSON(map[string]any{
 				"code":    define.Frequently,
 				"after":   v.Limit - (now - last),
 				"message": "call too frequently",
@@ -293,7 +293,7 @@ func LoadEmailCodeH(s *web.Session) web.Result {
 		xlog.Warnf("DebugLoadEmailCodeH load %v sended email by %v fail with %v", key, email, err)
 		return util.ReturnCodeLocalErr(s, define.ServerError, "srv-err", err)
 	}
-	return s.SendJSON(map[string]interface{}{
+	return s.SendJSON(map[string]any{
 		"code":      0,
 		"emailCode": having,
 	})

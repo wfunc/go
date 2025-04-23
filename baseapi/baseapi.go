@@ -41,7 +41,7 @@ var UploadFileAccess = func(s *web.Session) bool {
 }
 
 func RecvValidJSON(s *web.Session, valider basedb.Validable) (err error) {
-	_, err = s.RecvJSON(interface{}(valider))
+	_, err = s.RecvJSON(any(valider))
 	if err == nil {
 		err = valider.Valid()
 	}

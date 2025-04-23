@@ -5,7 +5,7 @@ import (
 	"github.com/codingeasygo/web"
 )
 
-func jsonResult(code int, data interface{}, message string, debug string) xmap.M {
+func jsonResult(code int, data any, message string, debug string) xmap.M {
 	res := make(xmap.M)
 	res["code"] = code
 	if len(message) > 0 {
@@ -28,6 +28,6 @@ func ReturnCodeErr(s *web.Session, code int, err string) web.Result {
 	return s.SendJSON(jsonResult(code, nil, err, ""))
 }
 
-func ReturnCodeData(s *web.Session, code int, data interface{}) web.Result {
+func ReturnCodeData(s *web.Session, code int, data any) web.Result {
 	return s.SendJSON(jsonResult(code, data, "", ""))
 }

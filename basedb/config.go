@@ -26,18 +26,18 @@ func StoreConfCall(caller crud.Queryer, ctx context.Context, key string, val str
 		insert into %v_config(key,value,update_time) values($1,$2,$3) 
 		on conflict(key) 
 		do update set value=$2, update_time=$3`, SYS)
-	args := []interface{}{key, val, time.Now()}
+	args := []any{key, val, time.Now()}
 	_, _, err = caller.Exec(ctx, sql, args...)
 	return
 }
 
 // LoadConf will return config by key from data
-func LoadConf(ctx context.Context, key string, val interface{}) (err error) {
+func LoadConf(ctx context.Context, key string, val any) (err error) {
 	err = LoadConfCall(Pool(), ctx, key, val)
 	return
 }
 
-func LoadConfCall(caller crud.Queryer, ctx context.Context, key string, val interface{}) (err error) {
+func LoadConfCall(caller crud.Queryer, ctx context.Context, key string, val any) (err error) {
 	returnType := "text"
 	kind := reflect.Indirect(reflect.ValueOf(val)).Type()
 	if kind.Kind() == reflect.Ptr {

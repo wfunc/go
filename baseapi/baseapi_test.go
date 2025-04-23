@@ -20,7 +20,7 @@ var ts *httptest.Server
 
 func init() {
 	var l = zap.New(xlog.Core, zap.AddCaller())
-	crud.Default.Log = func(caller int, format string, args ...interface{}) {
+	crud.Default.Log = func(caller int, format string, args ...any) {
 		l.WithOptions(zap.AddCallerSkip(caller+2)).Sugar().Infof(format, args...)
 	}
 	crud.Default.ErrNoRows = pgx.ErrNoRows

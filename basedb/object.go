@@ -20,12 +20,12 @@ func LoadObject(ctx context.Context, key string) (data xmap.M, err error) {
 }
 
 // UpsertObject will update object data
-func UpsertObject(ctx context.Context, key string, data interface{}) (effected int64, err error) {
+func UpsertObject(ctx context.Context, key string, data any) (effected int64, err error) {
 	effected, err = UpsertObjectCall(Pool(), ctx, key, data)
 	return
 }
 
-func UpsertObjectCall(caller crud.Queryer, ctx context.Context, key string, data interface{}) (effected int64, err error) {
+func UpsertObjectCall(caller crud.Queryer, ctx context.Context, key string, data any) (effected int64, err error) {
 	bys, err := json.Marshal(data)
 	if err != nil {
 		return

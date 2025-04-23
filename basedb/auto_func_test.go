@@ -127,7 +127,7 @@ func TestAutoAnnounce(t *testing.T) {
 		t.Error("find id error")
 		return
 	}
-	findAnnounce, err = FindAnnounceWhereCall(GetQueryer, context.Background(), true, "and", []string{"tid=$1"}, []interface{}{announce.TID})
+	findAnnounce, err = FindAnnounceWhereCall(GetQueryer, context.Background(), true, "and", []string{"tid=$1"}, []any{announce.TID})
 	if err != nil {
 		t.Error(err)
 		return
@@ -172,7 +172,7 @@ func TestAutoAnnounce(t *testing.T) {
 	}
 	announceList = nil
 	announceMap = nil
-	err = ScanAnnounceWheref(context.Background(), "tid=$%v", []interface{}{announce.TID}, &announceList, &announceMap, "tid")
+	err = ScanAnnounceWheref(context.Background(), "tid=$%v", []any{announce.TID}, &announceList, &announceMap, "tid")
 	if err != nil {
 		t.Error(err)
 		return
@@ -248,7 +248,7 @@ func TestAutoConfig(t *testing.T) {
 		t.Error("find id error")
 		return
 	}
-	findConfig, err = FindConfigWhereCall(GetQueryer, context.Background(), true, "and", []string{"key=$1"}, []interface{}{config.Key})
+	findConfig, err = FindConfigWhereCall(GetQueryer, context.Background(), true, "and", []string{"key=$1"}, []any{config.Key})
 	if err != nil {
 		t.Error(err)
 		return
@@ -293,7 +293,7 @@ func TestAutoConfig(t *testing.T) {
 	}
 	configList = nil
 	configMap = nil
-	err = ScanConfigWheref(context.Background(), "key=$%v", []interface{}{config.Key}, &configList, &configMap, "key")
+	err = ScanConfigWheref(context.Background(), "key=$%v", []any{config.Key}, &configList, &configMap, "key")
 	if err != nil {
 		t.Error(err)
 		return
@@ -395,7 +395,7 @@ func TestAutoObject(t *testing.T) {
 		t.Error("find id error")
 		return
 	}
-	findObject, err = FindObjectWhereCall(GetQueryer, context.Background(), true, "and", []string{"key=$1"}, []interface{}{object.Key})
+	findObject, err = FindObjectWhereCall(GetQueryer, context.Background(), true, "and", []string{"key=$1"}, []any{object.Key})
 	if err != nil {
 		t.Error(err)
 		return
@@ -440,7 +440,7 @@ func TestAutoObject(t *testing.T) {
 	}
 	objectList = nil
 	objectMap = nil
-	err = ScanObjectWheref(context.Background(), "key=$%v", []interface{}{object.Key}, &objectList, &objectMap, "key")
+	err = ScanObjectWheref(context.Background(), "key=$%v", []any{object.Key}, &objectList, &objectMap, "key")
 	if err != nil {
 		t.Error(err)
 		return
@@ -540,7 +540,7 @@ func TestAutoVersionObject(t *testing.T) {
 		t.Error("find id error")
 		return
 	}
-	findVersionObject, err = FindVersionObjectWhereCall(GetQueryer, context.Background(), true, "and", []string{"tid=$1"}, []interface{}{versionObject.TID})
+	findVersionObject, err = FindVersionObjectWhereCall(GetQueryer, context.Background(), true, "and", []string{"tid=$1"}, []any{versionObject.TID})
 	if err != nil {
 		t.Error(err)
 		return
@@ -585,7 +585,7 @@ func TestAutoVersionObject(t *testing.T) {
 	}
 	versionObjectList = nil
 	versionObjectMap = nil
-	err = ScanVersionObjectWheref(context.Background(), "tid=$%v", []interface{}{versionObject.TID}, &versionObjectList, &versionObjectMap, "tid")
+	err = ScanVersionObjectWheref(context.Background(), "tid=$%v", []any{versionObject.TID}, &versionObjectList, &versionObjectMap, "tid")
 	if err != nil {
 		t.Error(err)
 		return

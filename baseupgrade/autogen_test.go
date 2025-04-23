@@ -66,7 +66,7 @@ var PgGen = gen.AutoGen{
 	TableInclude: xsql.StringArray{},
 	TableExclude: xsql.StringArray{},
 	Queryer:      pgx.Pool,
-	TableQueryer: func(queryer interface{}, tableSQL, columnSQL, schema string) (tables []*gen.Table, err error) {
+	TableQueryer: func(queryer any, tableSQL, columnSQL, schema string) (tables []*gen.Table, err error) {
 		tables, err = gen.Query(queryer, tableSQL, columnSQL, schema)
 		if err != nil {
 			return
