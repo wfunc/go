@@ -7,7 +7,9 @@ require (
 	github.com/codingeasygo/util v0.0.0-20231206062002-1ce2f004b7d9
 	github.com/codingeasygo/web v0.0.0-20230907002627-38429b961da0
 	github.com/dchest/captcha v1.1.0
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gomodule/redigo v1.9.2
+	github.com/shopspring/decimal v1.4.0
 	github.com/wfunc/crud v0.0.0-20250325053141-5fae8d3bad3a
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.37.0
