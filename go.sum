@@ -14,8 +14,8 @@ github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I
 github.com/cockroachdb/apd v1.1.0/go.mod h1:8Sl8LxpKi29FqWXR16WEFZRNSz3SoPzUzeMeY4+DwBQ=
 github.com/codingeasygo/util v0.0.0-20231206062002-1ce2f004b7d9 h1:lgZYRVFBxBu2ELumEtJHFINCz+Cs1eBVbv8XlhNP1FI=
 github.com/codingeasygo/util v0.0.0-20231206062002-1ce2f004b7d9/go.mod h1:CE705pc3Xn2F3nqMKhvfaigeXeDudpdteTzbf+2jwig=
-github.com/codingeasygo/web v0.0.0-20230907002627-38429b961da0 h1:EB2qTZ3dth9C7XAiQhmJbHY5faGfkVUr6p95oAdgm8k=
-github.com/codingeasygo/web v0.0.0-20230907002627-38429b961da0/go.mod h1:YOIpmocUy7mG3Q/z2tb37AR8PVNqdY9qs9R88ykBR70=
+github.com/wfunc/web v0.0.0-20230907002627-38429b961da0 h1:EB2qTZ3dth9C7XAiQhmJbHY5faGfkVUr6p95oAdgm8k=
+github.com/wfunc/web v0.0.0-20230907002627-38429b961da0/go.mod h1:YOIpmocUy7mG3Q/z2tb37AR8PVNqdY9qs9R88ykBR70=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=

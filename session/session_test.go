@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/codingeasygo/util/xhttp"
-	"github.com/codingeasygo/web"
-	"github.com/codingeasygo/web/httptest"
+	"github.com/wfunc/web"
+	"github.com/wfunc/web/httptest"
 
 	"github.com/Centny/rediscache"
 )

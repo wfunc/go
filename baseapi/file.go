@@ -10,8 +10,8 @@ import (
 
 	"github.com/codingeasygo/util/uuid"
 	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/web"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/web"
 )
 
 type UploadH struct {

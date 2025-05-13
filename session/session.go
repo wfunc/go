@@ -12,8 +12,8 @@ import (
 
 	"github.com/codingeasygo/util/xmap"
 	"github.com/codingeasygo/util/xsql"
-	"github.com/codingeasygo/web"
 	"github.com/gomodule/redigo/redis"
+	"github.com/wfunc/web"
 )
 
 // DbSessionBuilder is the session builder by db

@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/codingeasygo/util/xhttp"
-	"github.com/codingeasygo/web/httptest"
 	"github.com/wfunc/crud"
 	"github.com/wfunc/crud/gen"
 	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/basedb"
 	"github.com/wfunc/go/baseupgrade"
 	"github.com/wfunc/go/xlog"
+	"github.com/wfunc/web/httptest"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

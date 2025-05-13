@@ -1,8 +1,8 @@
 package baseapi
 
 import (
-	"github.com/codingeasygo/web"
 	"github.com/wfunc/go/basedb"
+	"github.com/wfunc/web"
 )
 
 var SrvAddr = func() string {

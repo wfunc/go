@@ -7,11 +7,11 @@ import (
 
 	"github.com/codingeasygo/util/converter"
 	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/web"
-	"github.com/codingeasygo/web/httptest"
 	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/basedb"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/web"
+	"github.com/wfunc/web/httptest"
 )
 
 func TestConfig(t *testing.T) {

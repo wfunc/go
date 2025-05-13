@@ -6,10 +6,10 @@ import (
 
 	"github.com/codingeasygo/util/converter"
 	"github.com/codingeasygo/util/xsql"
-	"github.com/codingeasygo/web"
 	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/basedb"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/web"
 )
 
 func TestVersionObject(t *testing.T) {

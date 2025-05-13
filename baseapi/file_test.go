@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/codingeasygo/util/converter"
-	"github.com/codingeasygo/web"
-	"github.com/codingeasygo/web/httptest"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/web"
+	"github.com/wfunc/web/httptest"
 )
 
 func TestFile(t *testing.T) {

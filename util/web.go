@@ -2,7 +2,7 @@ package util
 
 import (
 	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/web"
+	"github.com/wfunc/web"
 )
 
 func jsonResult(code int, data any, message string, debug string) xmap.M {

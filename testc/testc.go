@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/codingeasygo/web"
 	"github.com/wfunc/go/transport"
+	"github.com/wfunc/web"
 )
 
 func main() {

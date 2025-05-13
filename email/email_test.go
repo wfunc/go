@@ -7,8 +7,8 @@ import (
 	"github.com/Centny/rediscache"
 	"github.com/codingeasygo/util/converter"
 	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/web/httptest"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/web/httptest"
 )
 
 func TestVerifyEmail(t *testing.T) {
