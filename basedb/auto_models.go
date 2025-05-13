@@ -1,8 +1,8 @@
-//auto gen models by autogen
+// auto gen models by autogen
 package basedb
 
 import (
-	"github.com/codingeasygo/util/xsql"
+	"github.com/wfunc/util/xsql"
 )
 
 /***** metadata:Announce *****/
@@ -13,10 +13,10 @@ const (
 	AnnounceTypeNormal AnnounceType = 100 //is normal type
 )
 
-//AnnounceTypeAll is the announce type
+// AnnounceTypeAll is the announce type
 var AnnounceTypeAll = AnnounceTypeArray{AnnounceTypeNormal}
 
-//AnnounceTypeShow is the announce type
+// AnnounceTypeShow is the announce type
 var AnnounceTypeShow = AnnounceTypeArray{AnnounceTypeNormal}
 
 type AnnounceStatus int
@@ -27,10 +27,10 @@ const (
 	AnnounceStatusRemoved AnnounceStatus = -1  //is removed status
 )
 
-//AnnounceStatusAll is the announce status
+// AnnounceStatusAll is the announce status
 var AnnounceStatusAll = AnnounceStatusArray{AnnounceStatusNormal, AnnounceStatusRemoved}
 
-//AnnounceStatusShow is the announce status
+// AnnounceStatusShow is the announce status
 var AnnounceStatusShow = AnnounceStatusArray{AnnounceStatusNormal}
 
 /*Announce  represents announce */
@@ -66,10 +66,10 @@ const (
 	ObjectStatusRemoved ObjectStatus = -1  //is removed
 )
 
-//ObjectStatusAll is the status
+// ObjectStatusAll is the status
 var ObjectStatusAll = ObjectStatusArray{ObjectStatusNormal, ObjectStatusRemoved}
 
-//ObjectStatusShow is the status
+// ObjectStatusShow is the status
 var ObjectStatusShow = ObjectStatusArray{ObjectStatusNormal}
 
 /*Object  represents object */
@@ -92,10 +92,10 @@ const (
 	VersionObjectStatusRemoved  VersionObjectStatus = -1  //is removed
 )
 
-//VersionObjectStatusAll is the status
+// VersionObjectStatusAll is the status
 var VersionObjectStatusAll = VersionObjectStatusArray{VersionObjectStatusNormal, VersionObjectStatusDisabled, VersionObjectStatusRemoved}
 
-//VersionObjectStatusShow is the status
+// VersionObjectStatusShow is the status
 var VersionObjectStatusShow = VersionObjectStatusArray{VersionObjectStatusNormal, VersionObjectStatusDisabled}
 
 /*VersionObject  represents version_object */

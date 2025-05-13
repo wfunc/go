@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/util/xsql"
+	"github.com/wfunc/util/xmap"
+	"github.com/wfunc/util/xsql"
 )
 
 func TestObject(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/codingeasygo/util/converter"
+	"github.com/wfunc/util/converter"
 )
 
 func TestVersionSorter(t *testing.T) {

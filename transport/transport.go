@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/codingeasygo/util/xnet"
 	"github.com/wfunc/go/xlog"
+	"github.com/wfunc/util/xnet"
 	"github.com/wfunc/web"
 	"golang.org/x/net/websocket"
 )

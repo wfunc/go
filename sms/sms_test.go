@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/Centny/rediscache"
-	"github.com/codingeasygo/util/converter"
-	"github.com/codingeasygo/util/xmap"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/util/converter"
+	"github.com/wfunc/util/xmap"
 	"github.com/wfunc/web/httptest"
 )
 

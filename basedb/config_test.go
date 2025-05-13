@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/codingeasygo/util/converter"
-	"github.com/codingeasygo/util/xmap"
 	"github.com/wfunc/crud/pgx"
+	"github.com/wfunc/util/converter"
+	"github.com/wfunc/util/xmap"
 )
 
 func TestConfig(t *testing.T) {

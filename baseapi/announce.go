@@ -3,12 +3,12 @@ package baseapi
 import (
 	"fmt"
 
-	"github.com/codingeasygo/util/converter"
-	"github.com/codingeasygo/util/xmap"
 	"github.com/wfunc/go/basedb"
 	"github.com/wfunc/go/define"
 	"github.com/wfunc/go/util"
 	"github.com/wfunc/go/xlog"
+	"github.com/wfunc/util/converter"
+	"github.com/wfunc/util/xmap"
 	"github.com/wfunc/web"
 )
 

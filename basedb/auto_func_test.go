@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codingeasygo/util/uuid"
 	"github.com/wfunc/crud"
+	"github.com/wfunc/util/uuid"
 )
 
 func TestAutoAnnounce(t *testing.T) {

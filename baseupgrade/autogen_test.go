@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/codingeasygo/util/xsql"
 	"github.com/wfunc/crud/gen"
 	"github.com/wfunc/crud/pgx"
+	"github.com/wfunc/util/xsql"
 )
 
 func init() {
@@ -89,7 +89,7 @@ var PgGen = gen.AutoGen{
 		//auto gen models by autogen
 		package %v
 		import (
-			"github.com/codingeasygo/util/xsql"
+			"github.com/wfunc/util/xsql"
 		)
 	`,
 	OutTestPre: `
@@ -103,7 +103,7 @@ var PgGen = gen.AutoGen{
 			"testing"
 
 			"github.com/wfunc/crud"
-			"github.com/codingeasygo/util/uuid"
+			"github.com/wfunc/util/uuid"
 		)
 	`,
 }

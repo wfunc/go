@@ -3,9 +3,9 @@ package util
 import (
 	"time"
 
-	"github.com/codingeasygo/util/xdebug"
 	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/xlog"
+	"github.com/wfunc/util/xdebug"
 )
 
 // NamedRunner will run call by delay

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/codingeasygo/util/converter"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/util/converter"
 	"github.com/wfunc/web"
 	"github.com/wfunc/web/httptest"
 )

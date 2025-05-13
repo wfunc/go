@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/codingeasygo/util/xsql"
+	"github.com/wfunc/util/xsql"
 )
 
 func TestAnnounce(t *testing.T) {

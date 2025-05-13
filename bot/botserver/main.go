@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/codingeasygo/util/xmap"
 	"github.com/gin-gonic/gin"
 	"github.com/wfunc/go/bot"
+	"github.com/wfunc/util/xmap"
 )
 
 func main() {

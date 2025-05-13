@@ -7,10 +7,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/codingeasygo/util/attrvalid"
-	"github.com/codingeasygo/util/converter"
-	"github.com/codingeasygo/util/xsql"
 	"github.com/wfunc/crud"
+	"github.com/wfunc/util/attrvalid"
+	"github.com/wfunc/util/converter"
+	"github.com/wfunc/util/xsql"
 )
 
 var GetQueryer any = func() crud.Queryer { return Pool() }

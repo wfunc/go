@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/util/xsql"
 	"github.com/wfunc/crud"
+	"github.com/wfunc/util/xmap"
+	"github.com/wfunc/util/xsql"
 )
 
 // LoadObject will return the object data

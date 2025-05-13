@@ -1,10 +1,10 @@
 package captcha
 
 import (
-	"github.com/codingeasygo/util/xmap"
 	"github.com/dchest/captcha"
 	"github.com/wfunc/go/define"
 	"github.com/wfunc/go/util"
+	"github.com/wfunc/util/xmap"
 	"github.com/wfunc/web"
 )
 

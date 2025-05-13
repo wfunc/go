@@ -5,8 +5,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/codingeasygo/util/converter"
 	"github.com/wfunc/go/xlog"
+	"github.com/wfunc/util/converter"
 )
 
 // VersionSorter -

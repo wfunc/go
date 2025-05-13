@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/codingeasygo/util/uuid"
 	"github.com/wfunc/go/xlog"
+	"github.com/wfunc/util/uuid"
 
-	"github.com/codingeasygo/util/xmap"
-	"github.com/codingeasygo/util/xsql"
 	"github.com/gomodule/redigo/redis"
+	"github.com/wfunc/util/xmap"
+	"github.com/wfunc/util/xsql"
 	"github.com/wfunc/web"
 )
 

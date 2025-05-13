@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/codingeasygo/util/xtime"
 	"github.com/wfunc/crud/pgx"
 	"github.com/wfunc/go/baseupgrade"
+	"github.com/wfunc/util/xtime"
 )
 
 func init() {

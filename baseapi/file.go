@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/codingeasygo/util/uuid"
-	"github.com/codingeasygo/util/xmap"
 	"github.com/wfunc/go/define"
+	"github.com/wfunc/util/uuid"
+	"github.com/wfunc/util/xmap"
 	"github.com/wfunc/web"
 )
 
