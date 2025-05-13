@@ -5,15 +5,15 @@ go 1.24.1
 require (
 	github.com/Centny/rediscache v0.0.0-20220105111036-c599d3d485bd
 	github.com/codingeasygo/util v0.0.0-20231206062002-1ce2f004b7d9
-	github.com/wfunc/web v0.0.0-20230907002627-38429b961da0
 	github.com/dchest/captcha v1.1.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gomodule/redigo v1.9.2
 	github.com/shopspring/decimal v1.4.0
 	github.com/wfunc/crud v0.0.0-20250325053141-5fae8d3bad3a
+	github.com/wfunc/web v0.0.0-20250513073110-404feb9f6296
 	go.uber.org/zap v1.27.0
-	golang.org/x/net v0.37.0
+	golang.org/x/net v0.25.0
 )
 
 require (
@@ -47,9 +47,9 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
-	golang.org/x/crypto v0.36.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
-	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/text v0.15.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
