@@ -142,6 +142,8 @@ func (d *DbSessionBuilder) newCookie() *http.Cookie {
 	c.Path = d.Path
 	c.Domain = d.Domain
 	c.MaxAge = d.MaxAge
+	c.HttpOnly = true
+	c.SameSite = http.SameSiteNoneMode
 	// d.log("new cookie by name(%v),path(%v),domain(%v),maxage(%v)", c.Name, c.Path, c.Domain, c.MaxAge)
 	return c
 }
