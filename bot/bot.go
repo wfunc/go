@@ -20,6 +20,13 @@ func Bootstrap(token string, chatIDStr string) {
 	chatID, _ = strconv.ParseInt(chatIDStr, 10, 64)
 }
 
+func SendMessageWithBot(inputToken string, inputChatID int64, msg string) (tgbotapi.Message, error) {
+	bt, _ := tgbotapi.NewBotAPI(inputToken)
+	message := tgbotapi.NewMessage(inputChatID, escapeMarkdownV2(msg))
+	message.ParseMode = "MarkdownV2"
+	return bt.Send(message)
+}
+
 func SendMessage(msg string) (tgbotapi.Message, error) {
 	if botAPI == nil {
 		return tgbotapi.Message{}, fmt.Errorf("botAPI is nil")

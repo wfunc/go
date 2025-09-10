@@ -32,7 +32,14 @@ func main() {
 			c.JSON(400, gin.H{"error": "msg is required"})
 			return
 		}
-		bot.SendMessage(msg)
+
+		token := payload.Str("token")
+		chatID := payload.Int64("chat_id")
+		if len(token) > 0 && chatID > 0 {
+			bot.SendMessageWithBot(token, chatID, msg)
+		} else {
+			bot.SendMessage(msg)
+		}
 		c.JSON(200, gin.H{"status": "ok"})
 	})
 	addr := os.Getenv("LISTEN_ADDR")
