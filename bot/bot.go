@@ -21,10 +21,18 @@ func Bootstrap(token string, chatIDStr string) {
 }
 
 func SendMessageWithBot(inputToken string, inputChatID int64, msg string) (tgbotapi.Message, error) {
-	bt, _ := tgbotapi.NewBotAPI(inputToken)
-	message := tgbotapi.NewMessage(inputChatID, escapeMarkdownV2(msg))
-	message.ParseMode = "MarkdownV2"
-	return bt.Send(message)
+    bt, _ := tgbotapi.NewBotAPI(inputToken)
+    message := tgbotapi.NewMessage(inputChatID, escapeMarkdownV2(msg))
+    message.ParseMode = "MarkdownV2"
+    return bt.Send(message)
+}
+
+// SendHTMLMessageWithBot sends an HTML-formatted message with a specific bot token and chat id
+func SendHTMLMessageWithBot(inputToken string, inputChatID int64, msg string) (tgbotapi.Message, error) {
+    bt, _ := tgbotapi.NewBotAPI(inputToken)
+    message := tgbotapi.NewMessage(inputChatID, msg)
+    message.ParseMode = "HTML"
+    return bt.Send(message)
 }
 
 func SendMessage(msg string) (tgbotapi.Message, error) {
