@@ -1,2 +1,15 @@
 bot/.DS_Store
 bot/botserver/botserver
+*.out
+.DS_Store
+*.log
+*.pid
+*.seed
+*.pid.lock
+*.swp
+*.swo
+*.tmp
+*.temp
+coverage.html
+coverage.json
+coverage.xml

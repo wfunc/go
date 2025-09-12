@@ -21,7 +21,16 @@ func init() {
 
 func TestSessionBuilder(t *testing.T) {
 	ts := httptest.NewMuxServer()
-	sb := NewDbSessionBuilder()
+    // Demonstrate overriding cookie behavior via global defaults:
+    // In HTTP tests, avoid Secure+None so cookies persist across requests.
+    SetDefaultCookiePolicy(CookiePolicy{
+        SecureOnHTTP:    false,
+        SameSiteOnHTTP:  http.SameSiteLaxMode,
+        SecureOnHTTPS:   true,
+        SameSiteOnHTTPS: http.SameSiteNoneMode,
+    })
+    // New builders without options pick up the global defaults
+    sb := NewDbSessionBuilder()
 	sb.Redis = rediscache.C
 	sb.ShowLog = true
 	ts.Mux.Builder = sb

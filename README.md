@@ -107,14 +107,81 @@ The library uses the following key dependencies:
 
 ### Session Management
 
+Option A — set global cookie policy defaults once and use simple constructor
+
 ```go
-import "github.com/wfunc/go/session"
+package main
 
-// Create session builder
-builder := session.NewDbSessionBuilder(redisPool, crud)
+import (
+    "net/http"
 
-// Find or create session
-sess := builder.FindSession(ctx, token)
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/session"
+)
+
+func init() {
+    // Configure global cookie policy: HTTP uses Lax + not Secure; HTTPS uses None + Secure
+    session.SetDefaultCookiePolicy(session.CookiePolicy{
+        SecureOnHTTP:    false,
+        SameSiteOnHTTP:  http.SameSiteLaxMode,
+        SecureOnHTTPS:   true,
+        SameSiteOnHTTPS: http.SameSiteNoneMode,
+    })
+}
+
+func setup() *session.DbSessionBuilder {
+    // Create builder with defaults
+    sb := session.NewDbSessionBuilder()
+    // Provide Redis connection factory (using rediscache for example)
+    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    sb.Redis = rediscache.C
+    return sb
+}
+```
+
+Option B — configure per-instance via constructor options
+
+```go
+package main
+
+import (
+    "net/http"
+
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/session"
+)
+
+func setup() *session.DbSessionBuilder {
+    // Customize cookie behavior for this builder only
+    sb := session.NewDbSessionBuilder(
+        session.WithCookieSecureOnHTTP(false),
+        session.WithCookieSameSiteOnHTTP(http.SameSiteLaxMode),
+        session.WithCookieSecureOnHTTPS(true),
+        session.WithCookieSameSiteOnHTTPS(http.SameSiteNoneMode),
+    )
+    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    sb.Redis = rediscache.C
+    return sb
+}
+```
+
+Attach the builder to your web router/mux (example uses `github.com/wfunc/web`):
+
+```go
+import (
+    "github.com/wfunc/web"
+    "github.com/wfunc/web/httptest"
+)
+
+sb := setup()
+srv := httptest.NewMuxServer()
+srv.Mux.Builder = sb
+
+srv.Mux.HandleFunc("^/set$", func(hs *web.Session) web.Result {
+    hs.SetValue("k", "v")
+    _ = hs.Flush()
+    return hs.Printf("ok")
+})
 ```
 
 ### SMS Verification

@@ -30,5 +30,5 @@ gocov convert a.out >coverage.json
 ##############################
 #####Create Coverage Report###
 echo "Create Coverage Report"
-cat coverage.json | gocov-xml -b $GOPATH/src >coverage.xml
+cat coverage.json | gocov-xml -source $GOPATH/src > coverage.xml
 cat coverage.json | gocov-html coverage.json >coverage.html

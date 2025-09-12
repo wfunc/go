@@ -107,14 +107,81 @@ go get github.com/wfunc/go
 
 ### 会话管理
 
+方式 A — 全局设置 Cookie 策略后使用简单构造器
+
 ```go
-import "github.com/wfunc/go/session"
+package main
 
-// 创建会话构建器
-builder := session.NewDbSessionBuilder(redisPool, crud)
+import (
+    "net/http"
 
-// 查找或创建会话
-sess := builder.FindSession(ctx, token)
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/session"
+)
+
+func init() {
+    // 全局 Cookie 策略：HTTP 使用 Lax + 非 Secure；HTTPS 使用 None + Secure
+    session.SetDefaultCookiePolicy(session.CookiePolicy{
+        SecureOnHTTP:    false,
+        SameSiteOnHTTP:  http.SameSiteLaxMode,
+        SecureOnHTTPS:   true,
+        SameSiteOnHTTPS: http.SameSiteNoneMode,
+    })
+}
+
+func setup() *session.DbSessionBuilder {
+    // 默认构造器
+    sb := session.NewDbSessionBuilder()
+    // 设置 Redis 连接工厂（示例使用 rediscache）
+    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    sb.Redis = rediscache.C
+    return sb
+}
+```
+
+方式 B — 通过构造器可选项进行实例级配置
+
+```go
+package main
+
+import (
+    "net/http"
+
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/session"
+)
+
+func setup() *session.DbSessionBuilder {
+    // 仅对当前构造器自定义 Cookie 行为
+    sb := session.NewDbSessionBuilder(
+        session.WithCookieSecureOnHTTP(false),
+        session.WithCookieSameSiteOnHTTP(http.SameSiteLaxMode),
+        session.WithCookieSecureOnHTTPS(true),
+        session.WithCookieSameSiteOnHTTPS(http.SameSiteNoneMode),
+    )
+    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    sb.Redis = rediscache.C
+    return sb
+}
+```
+
+将构造器挂载到你的 Web 路由（示例使用 `github.com/wfunc/web`）：
+
+```go
+import (
+    "github.com/wfunc/web"
+    "github.com/wfunc/web/httptest"
+)
+
+sb := setup()
+srv := httptest.NewMuxServer()
+srv.Mux.Builder = sb
+
+srv.Mux.HandleFunc("^/set$", func(hs *web.Session) web.Result {
+    hs.SetValue("k", "v")
+    _ = hs.Flush()
+    return hs.Printf("ok")
+})
 ```
 
 ### 短信验证

@@ -1,11 +1,11 @@
 package session
 
 import (
-	"bytes"
-	"encoding/gob"
-	"fmt"
-	"net/http"
-	"sync"
+    "bytes"
+    "encoding/gob"
+    "fmt"
+    "net/http"
+    "sync"
 
 	"github.com/wfunc/go/xlog"
 	"github.com/wfunc/util/uuid"
@@ -18,27 +18,78 @@ import (
 
 // DbSessionBuilder is the session builder by db
 type DbSessionBuilder struct {
-	Redis      func() redis.Conn
-	Path       string
-	Domain     string
-	MaxAge     int
-	Key        string
-	ShowLog    bool
-	sessionLck sync.RWMutex
-	sessiones  map[string]*DbSession
+    Redis      func() redis.Conn
+    Path       string
+    Domain     string
+    MaxAge     int
+    Key        string
+    ShowLog    bool
+    // cookie behavior controls
+    CookieSecureOnHTTP    bool
+    CookieSameSiteOnHTTP  http.SameSite
+    CookieSecureOnHTTPS   bool
+    CookieSameSiteOnHTTPS http.SameSite
+    sessionLck sync.RWMutex
+    sessiones  map[string]*DbSession
+}
+
+// CookiePolicy defines default cookie behavior for HTTP/HTTPS requests
+type CookiePolicy struct {
+    SecureOnHTTP     bool
+    SameSiteOnHTTP   http.SameSite
+    SecureOnHTTPS    bool
+    SameSiteOnHTTPS  http.SameSite
+}
+
+// DefaultCookiePolicy controls the default behavior used by NewDbSessionBuilder
+var DefaultCookiePolicy = CookiePolicy{
+    SecureOnHTTP:    false,
+    SameSiteOnHTTP:  http.SameSiteLaxMode,
+    SecureOnHTTPS:   true,
+    SameSiteOnHTTPS: http.SameSiteNoneMode,
+}
+
+// SetDefaultCookiePolicy sets the global default cookie policy
+func SetDefaultCookiePolicy(p CookiePolicy) {
+    DefaultCookiePolicy = p
+}
+
+// DbSessionOption configures DbSessionBuilder
+type DbSessionOption func(*DbSessionBuilder)
+
+func WithCookieSecureOnHTTP(v bool) DbSessionOption {
+	return func(d *DbSessionBuilder) { d.CookieSecureOnHTTP = v }
+}
+func WithCookieSameSiteOnHTTP(s http.SameSite) DbSessionOption {
+	return func(d *DbSessionBuilder) { d.CookieSameSiteOnHTTP = s }
+}
+func WithCookieSecureOnHTTPS(v bool) DbSessionOption {
+	return func(d *DbSessionBuilder) { d.CookieSecureOnHTTPS = v }
+}
+func WithCookieSameSiteOnHTTPS(s http.SameSite) DbSessionOption {
+	return func(d *DbSessionBuilder) { d.CookieSameSiteOnHTTPS = s }
 }
 
 // NewDbSessionBuilder will return new session builder.
-func NewDbSessionBuilder() *DbSessionBuilder {
-	return &DbSessionBuilder{
-		Path:       "/",
-		Domain:     "",
-		Key:        "session_id",
-		MaxAge:     0,
-		ShowLog:    false,
-		sessionLck: sync.RWMutex{},
-		sessiones:  map[string]*DbSession{},
-	}
+func NewDbSessionBuilder(opts ...DbSessionOption) *DbSessionBuilder {
+    b := &DbSessionBuilder{
+        Path:       "/",
+        Domain:     "",
+        Key:        "session_id",
+        MaxAge:     0,
+        ShowLog:    false,
+        // defaults
+        CookieSecureOnHTTP:    DefaultCookiePolicy.SecureOnHTTP,
+        CookieSameSiteOnHTTP:  DefaultCookiePolicy.SameSiteOnHTTP,
+        CookieSecureOnHTTPS:   DefaultCookiePolicy.SecureOnHTTPS,
+        CookieSameSiteOnHTTPS: DefaultCookiePolicy.SameSiteOnHTTPS,
+        sessionLck:            sync.RWMutex{},
+        sessiones:             map[string]*DbSession{},
+    }
+    for _, opt := range opts {
+        opt(b)
+    }
+    return b
 }
 
 func (d *DbSessionBuilder) log(format string, args ...any) {
@@ -50,6 +101,13 @@ func (d *DbSessionBuilder) log(format string, args ...any) {
 // create the http.Cookie with value and http.ResponseWriter/http.Request.
 func (d *DbSessionBuilder) writeCookie(value string, w http.ResponseWriter, r *http.Request) *http.Cookie {
 	c := d.newCookie()
+	if r != nil && r.TLS == nil {
+		c.SameSite = d.CookieSameSiteOnHTTP
+		c.Secure = d.CookieSecureOnHTTP
+	} else {
+		c.SameSite = d.CookieSameSiteOnHTTPS
+		c.Secure = d.CookieSecureOnHTTPS
+	}
 	c.Value = value
 	http.SetCookie(w, c)
 	return c
