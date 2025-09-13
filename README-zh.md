@@ -279,7 +279,10 @@ func setupEmail(cfg *xprop.Config) (*email.EmailSender, *httptest.Server, error)
 import "github.com/wfunc/go/bot"
 
 // 初始化机器人
-bot.Bootstrap(token, chatID)
+if err := bot.Bootstrap(token, chatID); err != nil {
+    // 处理初始化失败（token/chatID 无效等）
+    panic(err)
+}
 
 // 发送消息
 bot.SendMessage("Hello World!")

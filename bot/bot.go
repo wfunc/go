@@ -1,27 +1,42 @@
 package bot
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
-	"time"
+    "errors"
+    "fmt"
+    "strconv"
+    "strings"
+    "time"
 
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/shopspring/decimal"
+    tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+    "github.com/shopspring/decimal"
 )
 
 var (
-	botAPI *tgbotapi.BotAPI
-	chatID int64
+    botAPI *tgbotapi.BotAPI
+    chatID int64
 )
 
-func Bootstrap(token string, chatIDStr string) {
-	botAPI, _ = tgbotapi.NewBotAPI(token)
-	chatID, _ = strconv.ParseInt(chatIDStr, 10, 64)
+// Bootstrap initializes the default bot client and chat id.
+// Returns an error if token is invalid or chatID cannot be parsed.
+func Bootstrap(token string, chatIDStr string) error {
+    bt, err := tgbotapi.NewBotAPI(token)
+    if err != nil {
+        return err
+    }
+    id, err := strconv.ParseInt(chatIDStr, 10, 64)
+    if err != nil {
+        return err
+    }
+    botAPI = bt
+    chatID = id
+    return nil
 }
 
 func SendMessageWithBot(inputToken string, inputChatID int64, msg string) (tgbotapi.Message, error) {
-    bt, _ := tgbotapi.NewBotAPI(inputToken)
+    bt, err := tgbotapi.NewBotAPI(inputToken)
+    if err != nil {
+        return tgbotapi.Message{}, err
+    }
     message := tgbotapi.NewMessage(inputChatID, escapeMarkdownV2(msg))
     message.ParseMode = "MarkdownV2"
     return bt.Send(message)
@@ -29,28 +44,37 @@ func SendMessageWithBot(inputToken string, inputChatID int64, msg string) (tgbot
 
 // SendHTMLMessageWithBot sends an HTML-formatted message with a specific bot token and chat id
 func SendHTMLMessageWithBot(inputToken string, inputChatID int64, msg string) (tgbotapi.Message, error) {
-    bt, _ := tgbotapi.NewBotAPI(inputToken)
+    bt, err := tgbotapi.NewBotAPI(inputToken)
+    if err != nil {
+        return tgbotapi.Message{}, err
+    }
     message := tgbotapi.NewMessage(inputChatID, msg)
     message.ParseMode = "HTML"
     return bt.Send(message)
 }
 
 func SendMessage(msg string) (tgbotapi.Message, error) {
-	if botAPI == nil {
-		return tgbotapi.Message{}, fmt.Errorf("botAPI is nil")
-	}
-	message := tgbotapi.NewMessage(chatID, escapeMarkdownV2(msg))
-	message.ParseMode = "MarkdownV2"
-	return botAPI.Send(message)
+    if botAPI == nil {
+        return tgbotapi.Message{}, errors.New("bot not initialized")
+    }
+    if chatID == 0 {
+        return tgbotapi.Message{}, errors.New("chatID is not set")
+    }
+    message := tgbotapi.NewMessage(chatID, escapeMarkdownV2(msg))
+    message.ParseMode = "MarkdownV2"
+    return botAPI.Send(message)
 }
 
 func SendHTMLMessage(msg string) (tgbotapi.Message, error) {
-	if botAPI == nil {
-		return tgbotapi.Message{}, fmt.Errorf("botAPI is nil")
-	}
-	message := tgbotapi.NewMessage(chatID, msg)
-	message.ParseMode = "HTML"
-	return botAPI.Send(message)
+    if botAPI == nil {
+        return tgbotapi.Message{}, errors.New("bot not initialized")
+    }
+    if chatID == 0 {
+        return tgbotapi.Message{}, errors.New("chatID is not set")
+    }
+    message := tgbotapi.NewMessage(chatID, msg)
+    message.ParseMode = "HTML"
+    return botAPI.Send(message)
 }
 
 func SendDepositMessage(userID int64, quantity decimal.Decimal) {

@@ -89,7 +89,10 @@ func buildTelegramHTML(payload xmap.M, clientIP string) string {
 }
 
 func main() {
-	bot.Bootstrap(os.Getenv("BOT_TOKEN"), os.Getenv("CHAT_ID"))
+    if err := bot.Bootstrap(os.Getenv("BOT_TOKEN"), os.Getenv("CHAT_ID")); err != nil {
+        // 初始化失败时打印日志，但不中断服务；发送失败会进入重试/回放逻辑
+        fmt.Printf("init bot failed: %v\n", err)
+    }
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 

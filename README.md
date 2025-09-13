@@ -279,7 +279,10 @@ Optional:
 import "github.com/wfunc/go/bot"
 
 // Initialize bot
-bot.Bootstrap(token, chatID)
+if err := bot.Bootstrap(token, chatID); err != nil {
+    // handle init error (invalid token/chatID)
+    panic(err)
+}
 
 // Send message
 bot.SendMessage("Hello World!")
