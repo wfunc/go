@@ -45,6 +45,15 @@ var CaptchaVerify = func(v *VerifyPhone, id, code string) (err error) {
 	panic("verify captcha is not initial")
 }
 
+// UseRedis 配置 Redis 连接工厂
+func UseRedis(f func() redis.Conn) { Redis = f }
+
+// UseSender 配置短信发送实现
+func UseSender(s func(v *VerifyPhone, phone string, templateParam xmap.M) error) { SendSms = s }
+
+// UseCaptchaVerifier 配置验证码校验逻辑（当 Type = captcha 时）
+func UseCaptchaVerifier(f func(v *VerifyPhone, id, code string) error) { CaptchaVerify = f }
+
 // Default code length is 6
 var CodeLen = 6
 
@@ -235,6 +244,7 @@ func LoadPhoneCodeH(s *web.Session) web.Result {
 		xlog.Warnf("DebugLoadPhoneCodeH load %v sended sms by %v fail with %v", key, phone, err)
 		return util.ReturnCodeLocalErr(s, define.ServerError, "srv-err", err)
 	}
+	xlog.Infof("DebugLoadPhoneCodeH load %v sended sms by %v is %v", key, phone, having)
 	return s.SendJSON(map[string]any{
 		"code":      0,
 		"phoneCode": having,

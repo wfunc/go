@@ -1,20 +1,24 @@
 package baseupgrade
 
 import (
-	"os"
-	"strings"
-	"testing"
+    "os"
+    "strings"
+    "testing"
 
-	"github.com/wfunc/crud/gen"
-	"github.com/wfunc/crud/pgx"
-	"github.com/wfunc/util/xsql"
+    "github.com/wfunc/crud/gen"
+    "github.com/wfunc/crud/pgx"
+    "github.com/wfunc/util/xsql"
 )
 
 func init() {
-	_, err := pgx.Bootstrap("postgresql://dev:123@psql.loc:5432/base")
-	if err != nil {
-		panic(err)
-	}
+    pgURL := os.Getenv("PG_URL")
+    if pgURL == "" {
+        pgURL = "postgresql://dev:123@psql.loc:5432/base"
+    }
+    _, err := pgx.Bootstrap(pgURL)
+    if err != nil {
+        panic(err)
+    }
 }
 
 func nameConv(isTable bool, name string) string {

@@ -1,14 +1,15 @@
 package email
 
 import (
-	"fmt"
-	"testing"
+    "fmt"
+    "testing"
 
-	"github.com/Centny/rediscache"
-	"github.com/wfunc/go/define"
-	"github.com/wfunc/util/converter"
-	"github.com/wfunc/util/xmap"
-	"github.com/wfunc/web/httptest"
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/define"
+    "github.com/wfunc/util/converter"
+    "github.com/wfunc/util/xmap"
+    "github.com/wfunc/web/httptest"
+    "os"
 )
 
 func TestVerifyEmail(t *testing.T) {
@@ -21,8 +22,11 @@ func TestVerifyEmail(t *testing.T) {
 	SendVerifyEmailH.Type = VerifyEmailTypeUser
 	SendLoginEmailH.Type = VerifyEmailTypePhone
 	//
-	redisURI := "redis.loc:6379?db=1"
-	rediscache.InitRedisPool(redisURI)
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" {
+        redisURI = "redis.loc:6379?db=1"
+    }
+    rediscache.InitRedisPool(redisURI)
 	Redis = rediscache.C
 	ts := httptest.NewMuxServer()
 	Hand("", ts.Mux)

@@ -1,14 +1,15 @@
 package basedb
 
 import (
-	"context"
+    "context"
+    "os"
 
-	"github.com/wfunc/crud"
-	"github.com/wfunc/crud/gen"
-	"github.com/wfunc/crud/pgx"
-	"github.com/wfunc/go/baseupgrade"
-	"github.com/wfunc/go/xlog"
-	"go.uber.org/zap"
+    "github.com/wfunc/crud"
+    "github.com/wfunc/crud/gen"
+    "github.com/wfunc/crud/pgx"
+    "github.com/wfunc/go/baseupgrade"
+    "github.com/wfunc/go/xlog"
+    "go.uber.org/zap"
 )
 
 func init() {
@@ -18,7 +19,11 @@ func init() {
 		}()
 		Pool()
 	}()
-	_, err := pgx.Bootstrap("postgresql://dev:123@psql.loc:5432/base")
+    pgURL := os.Getenv("PG_URL")
+    if pgURL == "" {
+        pgURL = "postgresql://dev:123@psql.loc:5432/base"
+    }
+    _, err := pgx.Bootstrap(pgURL)
 	if err != nil {
 		panic(err)
 	}

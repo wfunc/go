@@ -1,14 +1,15 @@
 package email
 
 import (
-	"bytes"
-	"fmt"
-	"math"
-	"math/rand"
-	"net/smtp"
-	"strings"
-	"sync"
-	"time"
+    "bytes"
+    "fmt"
+    "math"
+    "math/rand"
+    "net/smtp"
+    "strings"
+    "sync"
+    "time"
+    "os"
 
 	"github.com/wfunc/go/define"
 	"github.com/wfunc/go/util"
@@ -48,6 +49,26 @@ var SendEmail = func(v *VerifyEmail, email string, templateParam xmap.M) (err er
 var CaptchaVerify = func(v *VerifyEmail, id, code string) (err error) {
 	panic("verify captcha is not initial")
 }
+
+// UseRedis 配置 Redis 连接工厂
+func UseRedis(f func() redis.Conn) { Redis = f }
+
+// UseSender 配置邮件发送实现
+func UseSender(s func(v *VerifyEmail, email string, templateParam xmap.M) error) { SendEmail = s }
+
+// UseEmailSender 直接使用 EmailSender 实例作为发送实现
+func UseEmailSender(sender *EmailSender) { SendEmail = sender.SendEmail }
+
+// UseEmailSenderFromEnv 读取环境变量并设置邮件发送实现
+func UseEmailSenderFromEnv() error {
+    sender, err := NewEmailSenderFromEnv()
+    if err != nil { return err }
+    UseEmailSender(sender)
+    return nil
+}
+
+// UseCaptchaVerifier 配置验证码校验逻辑（当 Type = captcha 时）
+func UseCaptchaVerifier(f func(v *VerifyEmail, id, code string) error) { CaptchaVerify = f }
 
 // Default code length is 6
 var CodeLen = 6
@@ -93,6 +114,32 @@ func NewEmailSenderFromConfig(config *xprop.Config) (sender *EmailSender, err er
 		email/api_host,o|s,l:0;
 	`, &sender.Username, &sender.Passsword, &sender.SmtpHost, &sender.SmtpPort, &sender.From, &sender.FromName, &sender.Title, &sender.Body, &sender.BodyFile, &sender.APIHost)
 	return
+}
+
+// NewEmailSenderFromEnv 根据环境变量创建 EmailSender
+// 需要的环境变量：
+//   EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_SMTP_HOST, EMAIL_SMTP_PORT,
+//   EMAIL_FROM, EMAIL_FROM_NAME, EMAIL_TITLE, EMAIL_BODY
+func NewEmailSenderFromEnv() (*EmailSender, error) {
+    get := func(k string) string { return strings.TrimSpace(os.Getenv(k)) }
+    required := []string{"EMAIL_USERNAME","EMAIL_PASSWORD","EMAIL_SMTP_HOST","EMAIL_SMTP_PORT","EMAIL_FROM","EMAIL_FROM_NAME","EMAIL_TITLE","EMAIL_BODY"}
+    for _, k := range required {
+        if get(k) == "" {
+            return nil, fmt.Errorf("missing env: %s", k)
+        }
+    }
+    return &EmailSender{
+        Username:  get("EMAIL_USERNAME"),
+        Passsword: get("EMAIL_PASSWORD"),
+        SmtpHost:  get("EMAIL_SMTP_HOST"),
+        SmtpPort:  get("EMAIL_SMTP_PORT"),
+        From:      get("EMAIL_FROM"),
+        FromName:  get("EMAIL_FROM_NAME"),
+        Title:     get("EMAIL_TITLE"),
+        Body:      get("EMAIL_BODY"),
+        BodyFile:  "",
+        APIHost:   "",
+    }, nil
 }
 
 func (e *EmailSender) SendEmail(v *VerifyEmail, email string, templateParam xmap.M) (err error) {
@@ -293,6 +340,7 @@ func LoadEmailCodeH(s *web.Session) web.Result {
 		xlog.Warnf("DebugLoadEmailCodeH load %v sended email by %v fail with %v", key, email, err)
 		return util.ReturnCodeLocalErr(s, define.ServerError, "srv-err", err)
 	}
+	xlog.Infof("DebugLoadEmailCodeH load %v sended email by %v is %v", key, email, having)
 	return s.SendJSON(map[string]any{
 		"code":      0,
 		"emailCode": having,

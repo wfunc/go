@@ -114,6 +114,7 @@ package main
 
 import (
     "net/http"
+    "os"
 
     "github.com/Centny/rediscache"
     "github.com/wfunc/go/session"
@@ -133,7 +134,9 @@ func setup() *session.DbSessionBuilder {
     // Create builder with defaults
     sb := session.NewDbSessionBuilder()
     // Provide Redis connection factory (using rediscache for example)
-    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
     sb.Redis = rediscache.C
     return sb
 }
@@ -146,6 +149,7 @@ package main
 
 import (
     "net/http"
+    "os"
 
     "github.com/Centny/rediscache"
     "github.com/wfunc/go/session"
@@ -159,7 +163,9 @@ func setup() *session.DbSessionBuilder {
         session.WithCookieSecureOnHTTPS(true),
         session.WithCookieSameSiteOnHTTPS(http.SameSiteNoneMode),
     )
-    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
     sb.Redis = rediscache.C
     return sb
 }
@@ -186,27 +192,86 @@ srv.Mux.HandleFunc("^/set$", func(hs *web.Session) web.Result {
 
 ### SMS Verification
 
+Register HTTP handlers and provide Redis + sender implementation
+
 ```go
-import "github.com/wfunc/go/sms"
+package main
 
-// Send verification SMS
-sms.SendVerifySmsH(ctx)
+import (
+    "os"
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/sms"
+    "github.com/wfunc/util/xmap"
+    "github.com/wfunc/web/httptest"
+)
 
-// Verify phone code
-result := sms.LoadPhoneCode(phone, code, codeType)
+func setupSMS() *httptest.Server {
+    // Init Redis pool and wire into sms package
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
+    sms.UseRedis(rediscache.C)
+
+    // Provide your SMS sender (templateParam["code"]) to call a real provider
+    sms.UseSender(func(v *sms.VerifyPhone, phone string, templateParam xmap.M) error {
+        // TODO: integrate with provider
+        return nil
+    })
+
+    srv := httptest.NewMuxServer()
+    sms.Hand("", srv.Mux)       // public + user endpoints
+    sms.HandDebug("", srv.Mux)   // optional: debug endpoint to read codes
+    return srv
+}
+
+// Usage
+srv := setupSMS()
+srv.GetMap("/pub/sendLoginSms?phone=1234567890")
+// Debug only (non-production):
+srv.GetMap("/pub/loadPhoneCode?key=login&phone=1234567890")
 ```
+
+Optional provider templates:
+
+- Aliyun SMS template: `examples/providers/aliyun_sms_template.go` (params + signature flow skeleton)
+- SMTP email template: `examples/providers/email_smtp_template.go` (configure from env)
 
 ### Email Service
 
+Register HTTP handlers and provide Redis + sender implementation
+
 ```go
-import "github.com/wfunc/go/email"
+package main
 
-// Create email sender
-sender := email.NewEmailSenderFromConfig(config)
+import (
+    "os"
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/email"
+    "github.com/wfunc/web/httptest"
+    "github.com/wfunc/util/xprop"
+)
 
-// Send verification email
-sender.SendEmail(to, subject, body)
+func setupEmail(cfg *xprop.Config) (*email.EmailSender, *httptest.Server, error) {
+    // Create SMTP sender from config
+    sender, err := email.NewEmailSenderFromConfig(cfg)
+    if err != nil { return nil, nil, err }
+
+    // Wire package-level dependencies
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
+    email.UseRedis(rediscache.C)
+    email.UseEmailSender(sender)
+
+    srv := httptest.NewMuxServer()
+    email.Hand("", srv.Mux)
+    email.HandDebug("", srv.Mux) // optional: debug endpoint to read codes
+    return sender, srv, nil
+}
 ```
+Optional:
+- Configure sender from env: `email.UseEmailSenderFromEnv()`
+- See `examples/providers/email_smtp_template.go`.
 
 ### Telegram Bot
 
@@ -225,14 +290,40 @@ bot.SendHTMLMessage("<b>Important</b> notification")
 
 ### Database Operations
 
+Bootstrap pgx, set the Pool, then use helpers
+
 ```go
-import "github.com/wfunc/go/basedb"
+package main
 
-// Use auto-generated models
-obj := basedb.FindObjectByID(id)
+import (
+    "context"
+    "os"
+    "github.com/wfunc/go/basedb"
+    "github.com/wfunc/util/xmap"
+)
 
-// Configuration management
-config := basedb.LoadConfig(key)
+func setupDB() error {
+    pgURL := os.Getenv("PG_URL")
+    if pgURL == "" { pgURL = "postgresql://dev:123@psql.loc:5432/base" }
+    return basedb.Bootstrap(pgURL)
+}
+
+func demo(ctx context.Context) error {
+    // Store and load config
+    _ = basedb.StoreConf(ctx, "site.title", "Welcome")
+    var title string
+    _ = basedb.LoadConf(ctx, "site.title", &title)
+
+    // Object storage
+    _, _ = basedb.UpsertObject(ctx, "profile:uid:123", xmap.M{"name":"Alice"})
+    obj, _ := basedb.LoadObject(ctx, "profile:uid:123")
+
+    // Versioned objects
+    _ = basedb.UpsertVersionObject(ctx, &basedb.VersionObject{Key:"app", Pub:"web", Value:xmap.M{"v":"1.0.0"}})
+    latest, _ := basedb.LoadLatestVersionObject(ctx, "app", "web")
+    _, _ = obj, latest
+    return nil
+}
 ```
 
 ## Project Structure
@@ -270,11 +361,49 @@ The build script will:
 2. Run tests with coverage
 3. Generate coverage reports (JSON, XML, HTML)
 
+Integration prerequisites
+
+- Some packages/tests require external services:
+  - PostgreSQL at `psql.loc:5432` (used by basedb/baseapi tests)
+  - Redis at `redis.loc:6379` (used by session/sms/email tests)
+- Ensure these hostnames resolve to your services (e.g., via `/etc/hosts`) or run compatible containers.
+ - Configure via env vars when running examples/tests:
+   - `PG_URL` (e.g., `postgresql://dev:123@psql.loc:5432/base`)
+   - `REDIS_URI` (e.g., `redis.loc:6379?db=1`)
+
 ### Sync Dependencies
 
 ```bash
 ./sync.sh
 ```
+
+## QuickStart
+
+A minimal runnable example is provided at `examples/quickstart`, covering Session, SMS, Email and simple DB config storage.
+
+Run:
+
+```bash
+export REDIS_URI="redis.loc:6379?db=1"
+export PG_URL="postgresql://dev:123@psql.loc:5432/base"
+cd examples/quickstart && docker compose up -d && cd -
+go run ./examples/quickstart               # standard http.Server
+go run ./examples/quickstart-httpserver    # standard http.Server (alt)
+go run ./examples/quickstart-gin           # Gin integration
+```
+
+See `examples/quickstart/README-zh.md` for Chinese instructions.
+
+Examples support .env and flags:
+
+- `.env` keys: `PG_URL`, `REDIS_URI`, `LISTEN_ADDR` (used when env is absent)
+- flags: `--listen`, `--pg`, `--redis` (override env)
+- helpers provided in `util/env.go`, `util/envload.go`, and `util/config.go`.
+
+### Optional admin panels
+
+- pgAdmin: http://localhost:5050 (default admin admin@admin.com/admin)
+- RedisInsight: http://localhost:5540
 
 ## Configuration
 
@@ -285,6 +414,16 @@ Most modules support configuration through environment variables or configuratio
 - SMTP server settings
 - Telegram bot tokens
 - SMS provider credentials
+
+### Environment Helpers
+
+Convenience helpers in `util/env.go`:
+
+- `util.EnvOrDefault(key, def string) string`
+- `util.EnvBoolDefault(key string, def bool) bool`
+- `util.EnvIntDefault(key string, def int) int`
+- `util.EnvPGURL() string` (default `postgresql://dev:123@psql.loc:5432/base`)
+- `util.EnvRedisURI() string` (default `redis.loc:6379?db=1`)
 
 ## Contributing
 

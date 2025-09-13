@@ -1,13 +1,13 @@
 package basedb
 
 import (
-	"context"
-	"math/rand"
-	"strings"
+    "context"
+    "math/rand"
+    "strings"
 
-	"github.com/wfunc/crud/pgx"
-	"github.com/wfunc/go/baseupgrade"
-	"github.com/wfunc/util/xtime"
+    "github.com/wfunc/crud/pgx"
+    "github.com/wfunc/go/baseupgrade"
+    "github.com/wfunc/util/xtime"
 )
 
 func init() {
@@ -38,4 +38,15 @@ func (b BaseTableName) GetTableName(args ...any) string {
 		return SYS + "_" + string(b)
 	}
 	return SYS + "_" + args[1].(string)
+}
+
+// Bootstrap 使用连接字符串初始化 pgx 连接池，设置 basedb.Pool，并检查/初始化数据库结构。
+// 便于在应用启动时一行完成数据库准备。
+func Bootstrap(connURL string) error {
+    if _, err := pgx.Bootstrap(connURL); err != nil {
+        return err
+    }
+    Pool = pgx.Pool
+    _, err := CheckDb()
+    return err
 }

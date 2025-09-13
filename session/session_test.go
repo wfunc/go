@@ -1,22 +1,26 @@
 package session
 
 import (
-	"net/http"
-	_ "net/http/pprof"
-	"testing"
+    "net/http"
+    _ "net/http/pprof"
+    "testing"
 
-	"github.com/wfunc/util/xhttp"
-	"github.com/wfunc/web"
-	"github.com/wfunc/web/httptest"
+    "github.com/wfunc/util/xhttp"
+    "github.com/wfunc/web"
+    "github.com/wfunc/web/httptest"
 
-	"github.com/Centny/rediscache"
+    "github.com/Centny/rediscache"
+    "os"
 )
 
 func init() {
-	go http.ListenAndServe(":6063", nil)
-	redisURI := "redis.loc:6379?db=1"
-	rediscache.InitRedisPool(redisURI)
-	xhttp.EnableCookie()
+    go http.ListenAndServe(":6063", nil)
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" {
+        redisURI = "redis.loc:6379?db=1"
+    }
+    rediscache.InitRedisPool(redisURI)
+    xhttp.EnableCookie()
 }
 
 func TestSessionBuilder(t *testing.T) {

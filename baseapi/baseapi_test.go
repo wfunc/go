@@ -1,19 +1,20 @@
 package baseapi
 
 import (
-	"context"
-	"net/http"
+    "context"
+    "net/http"
 
-	"github.com/wfunc/crud"
-	"github.com/wfunc/crud/gen"
-	"github.com/wfunc/crud/pgx"
-	"github.com/wfunc/go/basedb"
-	"github.com/wfunc/go/baseupgrade"
-	"github.com/wfunc/go/xlog"
-	"github.com/wfunc/util/xhttp"
-	"github.com/wfunc/web/httptest"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
+    "github.com/wfunc/crud"
+    "github.com/wfunc/crud/gen"
+    "github.com/wfunc/crud/pgx"
+    "github.com/wfunc/go/basedb"
+    "github.com/wfunc/go/baseupgrade"
+    "github.com/wfunc/go/xlog"
+    "github.com/wfunc/util/xhttp"
+    "github.com/wfunc/web/httptest"
+    "go.uber.org/zap"
+    "go.uber.org/zap/zapcore"
+    "os"
 )
 
 var ts *httptest.Server
@@ -33,7 +34,11 @@ func init() {
 		SrvAddr()
 	}()
 	xlog.AtomicLevel.Enabled(zapcore.DebugLevel)
-	_, err := pgx.Bootstrap("postgresql://dev:123@psql.loc:5432/base")
+    pgURL := os.Getenv("PG_URL")
+    if pgURL == "" {
+        pgURL = "postgresql://dev:123@psql.loc:5432/base"
+    }
+    _, err := pgx.Bootstrap(pgURL)
 	if err != nil {
 		panic(err)
 	}

@@ -114,6 +114,7 @@ package main
 
 import (
     "net/http"
+    "os"
 
     "github.com/Centny/rediscache"
     "github.com/wfunc/go/session"
@@ -133,7 +134,9 @@ func setup() *session.DbSessionBuilder {
     // 默认构造器
     sb := session.NewDbSessionBuilder()
     // 设置 Redis 连接工厂（示例使用 rediscache）
-    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
     sb.Redis = rediscache.C
     return sb
 }
@@ -146,6 +149,7 @@ package main
 
 import (
     "net/http"
+    "os"
 
     "github.com/Centny/rediscache"
     "github.com/wfunc/go/session"
@@ -159,7 +163,9 @@ func setup() *session.DbSessionBuilder {
         session.WithCookieSecureOnHTTPS(true),
         session.WithCookieSameSiteOnHTTPS(http.SameSiteNoneMode),
     )
-    rediscache.InitRedisPool("redis.loc:6379?db=1")
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
     sb.Redis = rediscache.C
     return sb
 }
@@ -186,27 +192,86 @@ srv.Mux.HandleFunc("^/set$", func(hs *web.Session) web.Result {
 
 ### 短信验证
 
+注册 HTTP 处理器，并提供 Redis 与短信发送实现
+
 ```go
-import "github.com/wfunc/go/sms"
+package main
 
-// 发送验证短信
-sms.SendVerifySmsH(ctx)
+import (
+    "os"
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/sms"
+    "github.com/wfunc/util/xmap"
+    "github.com/wfunc/web/httptest"
+)
 
-// 验证手机验证码
-result := sms.LoadPhoneCode(phone, code, codeType)
+func setupSMS() *httptest.Server {
+    // 初始化 Redis 连接
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
+    sms.UseRedis(rediscache.C)
+
+    // 提供你的短信发送实现（templateParam["code"] 为发送的验证码）
+    sms.UseSender(func(v *sms.VerifyPhone, phone string, templateParam xmap.M) error {
+        // TODO: 集成你的短信服务商
+        return nil
+    })
+
+    srv := httptest.NewMuxServer()
+    sms.Hand("", srv.Mux)        // 注册对外接口
+    sms.HandDebug("", srv.Mux)    // 可选：调试接口，便于读取验证码
+    return srv
+}
+
+// 使用
+srv := setupSMS()
+srv.GetMap("/pub/sendLoginSms?phone=1234567890")
+// 仅用于调试（不要在生产启用）：
+srv.GetMap("/pub/loadPhoneCode?key=login&phone=1234567890")
 ```
+
+可选：提供更详细的第三方模板（示例代码，需按供应商文档调整）：
+
+- 阿里云短信模板：`examples/providers/aliyun_sms_template.go`（演示参数与签名流程）
+- SMTP 邮件模板：`examples/providers/email_smtp_template.go`（从环境变量读取并配置）
 
 ### 邮件服务
 
+注册 HTTP 处理器，并提供 Redis 与邮件发送实现
+
 ```go
-import "github.com/wfunc/go/email"
+package main
 
-// 创建邮件发送器
-sender := email.NewEmailSenderFromConfig(config)
+import (
+    "os"
+    "github.com/Centny/rediscache"
+    "github.com/wfunc/go/email"
+    "github.com/wfunc/web/httptest"
+    "github.com/wfunc/util/xprop"
+)
 
-// 发送验证邮件
-sender.SendEmail(to, subject, body)
+func setupEmail(cfg *xprop.Config) (*email.EmailSender, *httptest.Server, error) {
+    // 从配置创建 SMTP 发送器
+    sender, err := email.NewEmailSenderFromConfig(cfg)
+    if err != nil { return nil, nil, err }
+
+    // 注入依赖
+    redisURI := os.Getenv("REDIS_URI")
+    if redisURI == "" { redisURI = "redis.loc:6379?db=1" }
+    rediscache.InitRedisPool(redisURI)
+    email.UseRedis(rediscache.C)
+    email.UseEmailSender(sender)
+
+    srv := httptest.NewMuxServer()
+    email.Hand("", srv.Mux)
+    email.HandDebug("", srv.Mux) // 可选：调试接口，便于读取验证码
+    return sender, srv, nil
+}
 ```
+可选：
+- 直接从环境变量配置发送器：`email.UseEmailSenderFromEnv()`；
+- 详见 `examples/providers/email_smtp_template.go`。
 
 ### Telegram 机器人
 
@@ -225,14 +290,40 @@ bot.SendHTMLMessage("<b>重要</b>通知")
 
 ### 数据库操作
 
+引导 pgx，设置 Pool，然后使用工具函数
+
 ```go
-import "github.com/wfunc/go/basedb"
+package main
 
-// 使用自动生成的模型
-obj := basedb.FindObjectByID(id)
+import (
+    "context"
+    "os"
+    "github.com/wfunc/go/basedb"
+    "github.com/wfunc/util/xmap"
+)
 
-// 配置管理
-config := basedb.LoadConfig(key)
+func setupDB() error {
+    pgURL := os.Getenv("PG_URL")
+    if pgURL == "" { pgURL = "postgresql://dev:123@psql.loc:5432/base" }
+    return basedb.Bootstrap(pgURL)
+}
+
+func demo(ctx context.Context) error {
+    // 保存/读取配置
+    _ = basedb.StoreConf(ctx, "site.title", "欢迎")
+    var title string
+    _ = basedb.LoadConf(ctx, "site.title", &title)
+
+    // 对象存储
+    _, _ = basedb.UpsertObject(ctx, "profile:uid:123", xmap.M{"name":"Alice"})
+    obj, _ := basedb.LoadObject(ctx, "profile:uid:123")
+
+    // 版本化对象
+    _ = basedb.UpsertVersionObject(ctx, &basedb.VersionObject{Key:"app", Pub:"web", Value:xmap.M{"v":"1.0.0"}})
+    latest, _ := basedb.LoadLatestVersionObject(ctx, "app", "web")
+    _, _ = obj, latest
+    return nil
+}
 ```
 
 ## 项目结构
@@ -270,11 +361,54 @@ config := basedb.LoadConfig(key)
 2. 运行带覆盖率的测试
 3. 生成覆盖率报告（JSON、XML、HTML）
 
+集成依赖准备
+
+- 部分包/测试依赖外部服务：
+  - PostgreSQL：`psql.loc:5432`（basedb/baseapi 测试使用）
+  - Redis：`redis.loc:6379`（session/sms/email 测试使用）
+- 确保这些主机名能解析到你的服务（例如通过 `/etc/hosts`），或运行相应容器。
+ - 运行示例/测试时可通过环境变量指定：
+   - `PG_URL`（例如 `postgresql://dev:123@psql.loc:5432/base`）
+   - `REDIS_URI`（例如 `redis.loc:6379?db=1`）
+
 ### 同步依赖
 
 ```bash
 ./sync.sh
 ```
+
+## QuickStart 示例
+
+我们在 `examples/quickstart` 提供了一个最小可运行的示例，涵盖 Session、SMS、Email 与基于 PostgreSQL 的配置存取。
+
+运行方式：
+
+```bash
+export REDIS_URI="redis.loc:6379?db=1"
+export PG_URL="postgresql://dev:123@psql.loc:5432/base"
+cd examples/quickstart && docker compose up -d && cd -
+go run ./examples/quickstart               # 使用标准 http.Server
+go run ./examples/quickstart-httpserver    # 使用标准 http.Server（备用）
+go run ./examples/quickstart-gin           # Gin 集成
+```
+
+详细说明见 `examples/quickstart/README-zh.md`。
+
+支持 .env 与命令行 flags：
+
+- .env 文件中的 `PG_URL`、`REDIS_URI`、`LISTEN_ADDR` 将在未设置同名环境变量时生效；
+- 命令行 flags：`--listen`、`--pg`、`--redis`（优先级高于环境变量）；
+- 相关工具函数见 `util/env.go`、`util/envload.go` 与 `util/config.go`（统一加载）。
+
+### 一键依赖与面板
+
+- `examples/quickstart/docker-compose.yml` 提供 Postgres、Redis、一键启动：
+  - PostgreSQL：5432；默认用户 dev、密码 123、DB base
+  - Redis：6379
+- 可选管理面板：
+  - pgAdmin：http://localhost:5050（初始账号 admin@admin.com/admin），添加服务器时主机填 `postgres`（容器内服务名）或本机 IP；
+  - RedisInsight：http://localhost:5540，添加 Redis 时主机填 `redis` 或本机 IP。
+- 顶层 `.env.example` 可复制为 `.env`，配合示例一起使用。
 
 ## 配置
 
@@ -285,6 +419,16 @@ config := basedb.LoadConfig(key)
 - SMTP 服务器设置
 - Telegram 机器人令牌
 - 短信服务提供商凭据
+
+### 实用环境变量工具
+
+`util/env.go` 提供了便捷函数：
+
+- `util.EnvOrDefault(key, def string) string`
+- `util.EnvBoolDefault(key string, def bool) bool`
+- `util.EnvIntDefault(key string, def int) int`
+- `util.EnvPGURL() string`（默认 `postgresql://dev:123@psql.loc:5432/base`）
+- `util.EnvRedisURI() string`（默认 `redis.loc:6379?db=1`）
 
 ## 贡献
 
