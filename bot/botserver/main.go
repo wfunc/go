@@ -26,66 +26,229 @@ func buildTelegramHTML(payload xmap.M, clientIP string) string {
 	if payload == nil {
 		return ""
 	}
-	// Extract fields
-	service := payload.Str("service")
-	typ := payload.Str("type")
-	ts := payload.Str("timestamp")
-	var message string
-	if v, ok := payload["message"].(string); ok && v != "" {
-		message = v
-	}
-	if data, ok := payload["data"].(map[string]any); ok {
-		if message == "" {
-			if v, ok2 := data["message"].(string); ok2 {
-				message = v
-			}
-		}
-		if ts == "" {
-			if v, ok2 := data["timestamp"].(string); ok2 {
-				ts = v
-			}
-		}
-	}
+    // Extract fields
+    service := payload.Str("service")
+    typ := payload.Str("type")
+    ts := payload.Str("timestamp")
 
-	// Decide icon by type
-	icon := "🔔"
-	switch strings.ToLower(typ) {
-	case "test", "ping":
-		icon = "🧪"
-	case "alert", "error", "incident":
-		icon = "🚨"
-	case "warn", "warning":
-		icon = "⚠️"
-	case "ok", "info", "notice":
-		icon = "ℹ️"
-	case "event":
-		icon = "📣"
-	}
+    var message string
+    if v, ok := payload["message"].(string); ok && v != "" {
+        message = v
+    }
 
-	esc := func(s string) string { return html.EscapeString(strings.TrimSpace(s)) }
+    // Common nested fields under data
+    var (
+        dataPlatform   string
+        dataAccount    string
+        dataAccountID  string
+        dataStatus     string
+        dataErrorCode  string
+        dataReason     string
+    )
+    if data, ok := payload["data"].(map[string]any); ok {
+        if message == "" {
+            if v, ok2 := data["message"].(string); ok2 {
+                message = v
+            }
+        }
+        if ts == "" {
+            if v, ok2 := data["timestamp"].(string); ok2 {
+                ts = v
+            }
+        }
+        if v, ok2 := data["platform"].(string); ok2 {
+            dataPlatform = v
+        }
+        if v, ok2 := data["accountName"].(string); ok2 {
+            dataAccount = v
+        }
+        if v, ok2 := data["accountId"].(string); ok2 {
+            dataAccountID = v
+        }
+        if v, ok2 := data["status"].(string); ok2 {
+            dataStatus = v
+        }
+        if v, ok2 := data["errorCode"].(string); ok2 {
+            dataErrorCode = v
+        }
+        if v, ok2 := data["reason"].(string); ok2 {
+            dataReason = v
+        }
+    }
 
-	b := &strings.Builder{}
-	title := "Webhook 通知"
-	if strings.ToLower(typ) == "test" {
-		title = "Webhook 测试"
-	}
-	fmt.Fprintf(b, "%s <b>%s</b>\n", icon, title)
-	if service = strings.TrimSpace(service); service != "" {
-		fmt.Fprintf(b, "🏷️ 服务: <code>%s</code>\n", esc(service))
-	}
-	if typ = strings.TrimSpace(typ); typ != "" {
-		fmt.Fprintf(b, "📌 类型: <code>%s</code>\n", esc(typ))
-	}
-	if ts = strings.TrimSpace(ts); ts != "" {
-		fmt.Fprintf(b, "⏰ 时间: <code>%s</code>\n", esc(ts))
-	}
-	if ip := strings.TrimSpace(clientIP); ip != "" {
-		fmt.Fprintf(b, "🌐 IP: <code>%s</code>\n", esc(ip))
-	}
-	if message = strings.TrimSpace(message); message != "" {
-		fmt.Fprintf(b, "📝 内容:\n<blockquote>%s</blockquote>", esc(message))
-	}
-	return b.String()
+    // Decide icon by type/status
+    icon := "🔔"
+    switch strings.ToLower(typ) {
+    case "test", "ping":
+        icon = "🧪"
+    case "alert", "error", "incident", "anomaly", "accountanomaly", "failure", "failed":
+        icon = "🚨"
+    case "warn", "warning":
+        icon = "⚠️"
+    case "ok", "info", "notice":
+        icon = "ℹ️"
+    case "event":
+        icon = "📣"
+    }
+    // If status explicitly indicates error/warn/ok, refine icon
+    switch strings.ToLower(strings.TrimSpace(dataStatus)) {
+    case "error", "failed", "fail":
+        icon = "🚨"
+    case "warn", "warning":
+        icon = "⚠️"
+    case "ok", "success", "passed":
+        // keep informational when type is not severe
+        if icon == "🔔" || icon == "ℹ️" {
+            icon = "✅"
+        }
+    }
+
+    esc := func(s string) string { return html.EscapeString(strings.TrimSpace(s)) }
+
+    // Platform icon selector
+    platformIcon := func(p string) string {
+        p = strings.ToLower(strings.TrimSpace(p))
+        switch {
+        case p == "claude-oauth" || strings.Contains(p, "claude") || strings.Contains(p, "anthropic"):
+            return "🤖"
+        case p == "openai" || strings.Contains(p, "gpt"):
+            return "🤖"
+        case strings.Contains(p, "azure-openai"):
+            return "☁️"
+        case strings.Contains(p, "cloudflare"):
+            return "🛡️"
+        case strings.Contains(p, "github"):
+            return "🐙"
+        case strings.Contains(p, "gitlab"):
+            return "🦊"
+        case strings.Contains(p, "stripe"):
+            return "💳"
+        case strings.Contains(p, "slack"):
+            return "💬"
+        case strings.Contains(p, "discord"):
+            return "🟣"
+        case strings.Contains(p, "feishu") || strings.Contains(p, "lark"):
+            return "🪶"
+        case strings.Contains(p, "dingtalk") || strings.Contains(p, "dingding"):
+            return "🛎️"
+        case strings.Contains(p, "wechat") || strings.Contains(p, "wecom"):
+            return "💬"
+        case strings.Contains(p, "aws"):
+            return "☁️"
+        case strings.Contains(p, "gcp") || strings.Contains(p, "google cloud"):
+            return "☁️"
+        case strings.Contains(p, "azure"):
+            return "☁️"
+        default:
+            return "💻"
+        }
+    }
+
+    // (deprecated) pickPlatformKey removed; platformIcon serves display purpose.
+
+    // Decorate platform value with its icon for display
+    if dp := strings.TrimSpace(dataPlatform); dp != "" {
+        dataPlatform = strings.TrimSpace(platformIcon(dp) + " " + dp)
+    }
+
+    b := &strings.Builder{}
+    title := "Webhook 通知"
+    if strings.ToLower(typ) == "test" {
+        title = "Webhook 测试"
+    }
+    fmt.Fprintf(b, "%s <b>%s</b>\n", icon, title)
+    if service = strings.TrimSpace(service); service != "" {
+        fmt.Fprintf(b, "🏷️ 服务: <code>%s</code>\n", esc(service))
+    }
+    if typ = strings.TrimSpace(typ); typ != "" {
+        fmt.Fprintf(b, "📌 类型: <code>%s</code>\n", esc(typ))
+    }
+    if ts = strings.TrimSpace(ts); ts != "" {
+        fmt.Fprintf(b, "⏰ 时间: <code>%s</code>\n", esc(ts))
+    }
+    if ip := strings.TrimSpace(clientIP); ip != "" {
+        fmt.Fprintf(b, "🌐 IP: <code>%s</code>\n", esc(ip))
+    }
+    // Structured details (if present)
+    if dataPlatform = strings.TrimSpace(dataPlatform); dataPlatform != "" {
+        fmt.Fprintf(b, "💻 平台: <code>%s</code>\n", esc(dataPlatform))
+    }
+    if dataAccount = strings.TrimSpace(dataAccount); dataAccount != "" {
+        fmt.Fprintf(b, "👤 账号: <code>%s</code>\n", esc(dataAccount))
+    }
+    if dataAccountID = strings.TrimSpace(dataAccountID); dataAccountID != "" {
+        fmt.Fprintf(b, "🆔 账户ID: <code>%s</code>\n", esc(dataAccountID))
+    }
+    if dataStatus = strings.TrimSpace(dataStatus); dataStatus != "" {
+        fmt.Fprintf(b, "⚙️ 状态: <code>%s</code>\n", esc(dataStatus))
+    }
+    if dataErrorCode = strings.TrimSpace(dataErrorCode); dataErrorCode != "" {
+        fmt.Fprintf(b, "📛 错误码: <code>%s</code>\n", esc(dataErrorCode))
+    }
+    // Platform-specific extra fields
+    // Best-effort keys commonly found across platforms; shown when present
+    if dataMap, ok := payload["data"].(map[string]any); ok {
+        // Candidate keys (union across platforms)
+        candidates := []string{
+            "resetAt", "retryAfter", "rateLimit",
+            "model", "organization", "deployment", "requestId",
+            "zone", "rayId",
+            "repo", "project", "ref", "workflow", "runId", "pipelineId",
+            "customerId", "invoiceId", "subscriptionId", "amount", "currency",
+        }
+        labels := map[string]string{
+            "resetAt":        "重置时间",
+            "retryAfter":     "重试等待",
+            "rateLimit":      "限流",
+            "model":          "模型",
+            "organization":   "组织",
+            "deployment":     "部署",
+            "requestId":      "请求ID",
+            "zone":           "区域/Zone",
+            "rayId":          "Ray ID",
+            "repo":           "仓库",
+            "project":        "项目",
+            "ref":            "引用/分支",
+            "workflow":       "工作流",
+            "runId":          "运行ID",
+            "pipelineId":     "流水线ID",
+            "customerId":     "客户ID",
+            "invoiceId":      "发票ID",
+            "subscriptionId": "订阅ID",
+            "amount":         "金额",
+            "currency":       "货币",
+        }
+        toStr := func(v any) string {
+            switch t := v.(type) {
+            case string:
+                return t
+            case fmt.Stringer:
+                return t.String()
+            case json.Number:
+                return t.String()
+            default:
+                return fmt.Sprint(t)
+            }
+        }
+        for _, k := range candidates {
+            if v, ok := dataMap[k]; ok {
+                if s := strings.TrimSpace(toStr(v)); s != "" {
+                    label := labels[k]
+                    if label == "" { label = k }
+                    fmt.Fprintf(b, "📎 %s: <code>%s</code>\\n", esc(label), esc(s))
+                }
+            }
+        }
+    }
+    // Prefer 'reason' as content if present, otherwise 'message'
+    content := strings.TrimSpace(dataReason)
+    if content == "" {
+        content = strings.TrimSpace(message)
+    }
+    if content != "" {
+        fmt.Fprintf(b, "📝 内容:\n<blockquote>%s</blockquote>", esc(content))
+    }
+    return b.String()
 }
 
 func main() {

@@ -48,6 +48,27 @@ A tiny HTTP service that accepts generic webhook requests and relays them to a T
      -d '{"msg":"hello","token":"<OTHER_BOT_TOKEN>","chat_id":123456789}' \\
      http://localhost:8080/send`
 
+- 真实示例：账户异常告警（claude-relay-service）
+
+```
+curl -X POST http://localhost:8080/webhook \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": {
+      "accountId": "BCEDC565-D4A9-4939-9663-50A77CF65388",
+      "accountName": "canada-cc",
+      "errorCode": "CLAUDE_5H_LIMIT_WARNING",
+      "platform": "claude",
+      "reason": "5小时使用量接近限制，已自动停止调度",
+      "status": "warning",
+      "timestamp": "2025-09-15T18:59:42+08:00"
+    },
+    "service": "claude-relay-service",
+    "timestamp": "2025-09-15T18:59:42+08:00",
+    "type": "accountAnomaly"
+  }'
+```
+
 ### IP Detection
 
 - Uses Gin’s `ClientIP()` which honors `X-Forwarded-For` and `X-Real-IP` when running behind proxies. Ensure your reverse proxy forwards one of these headers so the real client IP is shown in Telegram.
@@ -62,4 +83,3 @@ A tiny HTTP service that accepts generic webhook requests and relays them to a T
 ### Roadmap
 
 - Optional signature verification (DingTalk/飞书/企业微信) — not implemented yet.
-
